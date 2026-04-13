@@ -18,6 +18,10 @@ RUN apt-get update && apt-get install -y \
 # Install depthai
 RUN pip3 install depthai --break-system-packages
 
+WORKDIR /opt
+RUN git clone https://github.com/reedhedges/Aria.git && cd Aria && make
+RUN git clone https://github.com/reedhedges/ArNetworking.git && cd ArNetworking && make
+
 # Set working directory
 WORKDIR /workspace
 

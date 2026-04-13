@@ -13,6 +13,11 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     git \
     wget \
+    build-essential \
+    make \
+    g++ \
+    cmake \
+    doxygen \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

@@ -1,3 +1,0 @@
-[console_scripts]
-gps_waypoint_follower = pioneer_robot.gps_waypoint_follower:main
-waypoint_follower = pioneer_robot.waypoint_follower:main

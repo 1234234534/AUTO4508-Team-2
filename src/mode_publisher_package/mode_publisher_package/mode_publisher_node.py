@@ -31,7 +31,7 @@ class ModePublisherNode(Node):
             self.allowAuto = "OFF"
 
         #Log Mode
-        self.get_logger().info(f"{self.mode}:{self.allowAuto}")
+        self.get_logger().info(f"{self.mode}:{self.allowAuto}:{trigger}")
 
         # Publish Mode
         msg_out = String()

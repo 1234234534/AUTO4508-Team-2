@@ -1,4 +1,4 @@
 import sys
 if sys.prefix == '/usr':
     sys.real_prefix = sys.prefix
-    sys.prefix = sys.exec_prefix = '/home/winton/ros2_ws/install/pioneer_robot'
+    sys.prefix = sys.exec_prefix = '/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot'

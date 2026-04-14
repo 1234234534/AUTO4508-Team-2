@@ -1,0 +1,65 @@
+[0.010s] Invoking command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake /gitHubStuff/AUTO4508-Team-2/src/ariaNode -DCMAKE_INSTALL_PREFIX=/gitHubStuff/AUTO4508-Team-2/install/ariaNode
+[0.048s] -- The C compiler identification is GNU 13.3.0
+[0.087s] -- The CXX compiler identification is GNU 13.3.0
+[0.097s] -- Detecting C compiler ABI info
+[0.157s] -- Detecting C compiler ABI info - done
+[0.163s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.163s] -- Detecting C compile features
+[0.164s] -- Detecting C compile features - done
+[0.170s] -- Detecting CXX compiler ABI info
+[0.237s] -- Detecting CXX compiler ABI info - done
+[0.244s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.244s] -- Detecting CXX compile features
+[0.244s] -- Detecting CXX compile features - done
+[0.248s] -- Found ament_cmake: 2.5.5 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.340s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.428s] -- Found rclcpp: 28.1.16 (/opt/ros/jazzy/share/rclcpp/cmake)
+[0.467s] -- Found rosidl_generator_c: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[0.482s] -- Found rosidl_generator_cpp: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[0.497s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.514s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.580s] -- Found rmw_implementation_cmake: 7.3.3 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+[0.583s] -- Found rmw_fastrtps_cpp: 8.4.3 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+[0.644s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.13")  
+[0.658s] -- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+[0.674s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.734s] -- Found geometry_msgs: 5.3.6 (/opt/ros/jazzy/share/geometry_msgs/cmake)
+[0.759s] [0mThe root directory is /opt/ros/jazzy/share/fastrtps_cmake_module/cmake/Modules[0m
+[0.761s] -- Found ament_lint_auto: 0.17.4 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[0.810s] WARNING: Package name "ariaNode" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+[0.840s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[0.840s] -- Configured cppcheck include dirs: 
+[0.840s] -- Configured cppcheck exclude dirs and/or files: 
+[0.840s] -- Added test 'lint_cmake' to check CMake code style
+[0.841s] -- Added test 'uncrustify' to check C / C++ code style
+[0.841s] -- Configured uncrustify additional arguments: 
+[0.842s] -- Added test 'xmllint' to check XML markup files
+[0.843s] -- Configuring done (0.8s)
+[0.850s] -- Generating done (0.0s)
+[0.852s] -- Build files have been written to: /gitHubStuff/AUTO4508-Team-2/build/ariaNode
+[0.858s] Invoked command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake /gitHubStuff/AUTO4508-Team-2/src/ariaNode -DCMAKE_INSTALL_PREFIX=/gitHubStuff/AUTO4508-Team-2/install/ariaNode
+[0.859s] Invoking command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake --build /gitHubStuff/AUTO4508-Team-2/build/ariaNode -- -j8 -l8
+[0.894s] [ 50%] [32mBuilding CXX object CMakeFiles/ariaNode.dir/src/ariaNode.cpp.o[0m
+[5.947s] [100%] [32m[1mLinking CXX executable ariaNode[0m
+[6.150s] [100%] Built target ariaNode
+[6.157s] Invoked command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake --build /gitHubStuff/AUTO4508-Team-2/build/ariaNode -- -j8 -l8
+[6.164s] Invoking command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake --install /gitHubStuff/AUTO4508-Team-2/build/ariaNode
+[6.169s] -- Install configuration: ""
+[6.169s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/lib/ariaNode/ariaNode
+[6.172s] -- Set non-toolchain portion of runtime path of "/gitHubStuff/AUTO4508-Team-2/install/ariaNode/lib/ariaNode/ariaNode" to ""
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ament_index/resource_index/package_run_dependencies/ariaNode
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ament_index/resource_index/parent_prefix_path/ariaNode
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/environment/ament_prefix_path.sh
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/environment/ament_prefix_path.dsv
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/environment/path.sh
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/environment/path.dsv
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/local_setup.bash
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/local_setup.sh
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/local_setup.zsh
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/local_setup.dsv
+[6.172s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/package.dsv
+[6.173s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ament_index/resource_index/packages/ariaNode
+[6.173s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/cmake/ariaNodeConfig.cmake
+[6.173s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/cmake/ariaNodeConfig-version.cmake
+[6.173s] -- Installing: /gitHubStuff/AUTO4508-Team-2/install/ariaNode/share/ariaNode/package.xml
+[6.174s] Invoked command in '/gitHubStuff/AUTO4508-Team-2/build/ariaNode' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot:/opt/ros/jazzy /usr/bin/cmake --install /gitHubStuff/AUTO4508-Team-2/build/ariaNode

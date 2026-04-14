@@ -1,0 +1,22 @@
+[0.477s] Invoking command in '/gitHubStuff/AUTO4508-Team-2/src/pioneer_robot': PYTHONPATH=/gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/pioneer_robot build --build-base /gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/build install --record /gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/install.log --single-version-externally-managed install_data
+[0.620s] running egg_info
+[0.630s] writing ../../build/pioneer_robot/pioneer_robot.egg-info/PKG-INFO
+[0.630s] writing dependency_links to ../../build/pioneer_robot/pioneer_robot.egg-info/dependency_links.txt
+[0.630s] writing entry points to ../../build/pioneer_robot/pioneer_robot.egg-info/entry_points.txt
+[0.630s] writing requirements to ../../build/pioneer_robot/pioneer_robot.egg-info/requires.txt
+[0.630s] writing top-level names to ../../build/pioneer_robot/pioneer_robot.egg-info/top_level.txt
+[0.650s] reading manifest file '../../build/pioneer_robot/pioneer_robot.egg-info/SOURCES.txt'
+[0.651s] writing manifest file '../../build/pioneer_robot/pioneer_robot.egg-info/SOURCES.txt'
+[0.651s] running build
+[0.651s] running build_py
+[0.651s] running install
+[0.655s] running install_lib
+[0.665s] running install_data
+[0.666s] running install_egg_info
+[0.676s] removing '/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/python3.12/site-packages/pioneer_robot-0.0.0-py3.12.egg-info' (and everything under it)
+[0.676s] Copying ../../build/pioneer_robot/pioneer_robot.egg-info to /gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/python3.12/site-packages/pioneer_robot-0.0.0-py3.12.egg-info
+[0.677s] running install_scripts
+[0.741s] Installing gps_waypoint_follower script to /gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/pioneer_robot
+[0.741s] Installing waypoint_follower script to /gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/pioneer_robot
+[0.741s] writing list of installed files to '/gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/install.log'
+[0.760s] Invoked command in '/gitHubStuff/AUTO4508-Team-2/src/pioneer_robot' returned '0': PYTHONPATH=/gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/gitHubStuff/AUTO4508-Team-2/install/pioneer_robot/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/pioneer_robot build --build-base /gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/build install --record /gitHubStuff/AUTO4508-Team-2/build/pioneer_robot/install.log --single-version-externally-managed install_data

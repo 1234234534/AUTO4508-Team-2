@@ -29,5 +29,6 @@ RUN git clone https://github.com/reedhedges/AriaCoda.git /AriaCoda && cd /AriaCo
 
 # Set working directory
 WORKDIR /workspace
+COPY . /workspace
 
 CMD ["/bin/bash"]

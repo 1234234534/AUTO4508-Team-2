@@ -29,6 +29,10 @@ RUN git clone https://github.com/reedhedges/AriaCoda.git /AriaCoda && cd /AriaCo
 
 # Set working directory
 WORKDIR /workspace
-COPY . /workspace
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["/bin/bash"]

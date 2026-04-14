@@ -12,22 +12,30 @@ class ModePublisherNode(Node):
         self.publisher = self.create_publisher(String, '/mode', 10)
 
         self.mode = "MANUAL"
+        self.allowAuto = "OFF"
 
     def joy_callback(self, msg):
+        # Read Relevant Controller States
         x_button = msg.buttons[0]
         o_button = msg.buttons[1]
+        trigger = msg.axes[5]
 
+        # Set Mode
         if x_button:
             self.mode = "AUTO"
-            self.get_logger().info("X pressed, AUTO_MODE ON")
         if o_button:
             self.mode = "MANUAL"
-            self.get_logger().info("O pressed, MANUAL_MODE ON")
-        self.get_logger().info(f"axes: {msg.axes}")
-        self.get_logger().info(f"buttons: {msg.buttons}")
+        if trigger < 0:
+            self.allowAuto = "ON"
+        else:
+            self.allowAuto = "OFF"
 
+        #Log Mode
+        self.get_logger().info(f"{self.mode}:{self.allowAuto}")
+
+        # Publish Mode
         msg_out = String()
-        msg_out.data = self.mode
+        msg_out.data = f"{self.mode}:{self.allowAuto}"
         self.publisher.publish(msg_out)
 
 def main(args=None):

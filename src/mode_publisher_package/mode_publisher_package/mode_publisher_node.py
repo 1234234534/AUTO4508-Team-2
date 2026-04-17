@@ -25,9 +25,9 @@ class ModePublisherNode(Node):
             self.mode = "AUTO"
         if o_button:
             self.mode = "MANUAL"
-        if trigger < 0:
+        if trigger < 0.99:
             self.allowAuto = "ON"
-        elif trigger >= 0:
+        else:
             self.allowAuto = "OFF"
 
         #Log Mode

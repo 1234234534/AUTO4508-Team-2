@@ -26,6 +26,9 @@ class MainDriveNode(Node):
         # Store current settings
         self.mode, self.allow = msg.data.split(":")
 
+        #update output
+        self.update_output()
+
     def teleop_callback(self, msg):
         # Store teleop_twist_joy msg
         self.teleop_cmd = msg
@@ -41,10 +44,10 @@ class MainDriveNode(Node):
             # Activate Teleop_twist_joy
             twist = self.teleop_cmd
 
-        elif mode == "AUTO" and allow == "ON":
+        elif self.mode == "AUTO" and self.allow == "ON":
             # Set to 0.2 forward in x direction
             twist.linear.x = 0.2
-            tiwst.angular.z = 0.0
+            twist.angular.z = 0.0
             #LATER
             #twist = self.nav2_cmd
 
@@ -53,6 +56,7 @@ class MainDriveNode(Node):
             twist.linear.x = 0.0
             twist.angular.z = 0.0
 
+        self.get_logger().info(f"{twist.linear.x}, {twist.angular.z}", throttle_duration_sec=1.0)
         self.publisher.publish(twist)
 
 def main(args=None):

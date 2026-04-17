@@ -8,7 +8,7 @@ ros2 run teleop_twist_joy teleop_node \
     -p axis_linear.x:=1 \
     -p scale_linear.x:=0.5 \
     -p axis_angular.yaw:=0 \
-    -p scale_angular.yaw:=-1.0 \
+    -p scale_angular.yaw:=1.0 \
     -r /cmd_vel:=cmd_vel_teleop &
 ros2 run ariaNode ariaNode -rp /dev/ttyUSB0 &
 ros2 run mode_publisher_package mode_publisher_node &

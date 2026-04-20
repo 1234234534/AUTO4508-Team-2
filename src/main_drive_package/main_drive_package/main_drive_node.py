@@ -40,7 +40,7 @@ class MainDriveNode(Node):
         # Twist Message
         twist = Twist()
 
-        if self.mode == "MANUAL":
+        if self.mode == "MANUAL" and self.allow == "ON":
             # Activate Teleop_twist_joy
             twist = self.teleop_cmd
 

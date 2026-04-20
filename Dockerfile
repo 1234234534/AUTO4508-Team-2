@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     tmux \
     ros-jazzy-nmea-navsat-driver \
     ros-jazzy-depthai-ros \
+    ros-jazzy-rqt-image-view \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

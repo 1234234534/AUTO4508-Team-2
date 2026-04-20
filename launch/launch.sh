@@ -18,5 +18,6 @@ ros2 run nmea_navsat_driver nmea_serial_driver \
     --ros-args \
     -p port:=/dev/ttyACM0 \
     -r fix:=/gps/fix &
+ros2 launch depthai_ros_driver camera.launch.py &
 
 wait

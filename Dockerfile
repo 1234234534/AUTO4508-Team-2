@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     doxygen \
     tmux \
     ros-jazzy-nmea-navsat-driver \
+    ros-jazzy-depthai-ros \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

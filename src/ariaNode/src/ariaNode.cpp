@@ -15,6 +15,14 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 
+/* For Odom */
+#include <nav_msgs/msg/odometry.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/pose2_d.hpp>
+
 # include "Aria/Aria.h"
 
 //used with signal handler as signal handler function doesn't accept parameters
@@ -30,13 +38,19 @@ using namespace std::chrono_literals;
 */
 class ariaNode : public rclcpp::Node {
     public:
-        ariaNode(float* forwardSpeed, float* rotationSpeed) : Node("Aria_node") {
+        ariaNode(float* forwardSpeed, float* rotationSpeed, ArRobot* robotPtr) : Node("Aria_node") {
             currentForwardSpeed = forwardSpeed;
             currentRotationSpeed = rotationSpeed;
+            robot = robotPtr;
 
             cmdVelSub = create_subscription<geometry_msgs::msg::Twist> (
                 "cmd_vel", 10, std::bind(&ariaNode::cmdVelCallback, this, std::placeholders::_1)
-            );    
+            );
+            
+            /* Odom */
+            posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("robot_pose", 10);
+
+            poseTimer = this->create_wall_timer(50ms, std::bind(&ariaNode::publishPose, this));
         }
 
     private:
@@ -62,6 +76,18 @@ class ariaNode : public rclcpp::Node {
 void my_handler(int s){
            printf("Caught signal %d\n",s);
            stopRunning = true;
+}
+
+//Odom Function
+void publishPose() {
+    ArPose p = robot->getPose();
+
+    geometry_msgs::msg::Pose2D msg;
+    msg.x = p.getX() / 1000.0;
+    msg.y = p.getY() / 1000.0;
+    msg.theta = p.getTh() * M_PI / 180.0;
+
+    posePub->publish(msg);
 }
 
 int main(int argc, char** argv) {
@@ -96,7 +122,7 @@ int main(int argc, char** argv) {
     // RCLCPP_DEBUG(aNode->get_logger(),"Enable Motors");
     robot->enableMotors();
 
-    auto aNode = std::make_shared<ariaNode>(&forwardSpeed, &rotationSpeed);
+    auto aNode = std::make_shared<ariaNode>(&forwardSpeed, &rotationSpeed, robot);
     RCLCPP_DEBUG(aNode->get_logger(),"Before Spin!...");
 
     /*

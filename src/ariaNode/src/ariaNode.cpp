@@ -22,6 +22,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/pose2_d.hpp>
+#include <cmath>
 
 # include "Aria/Aria.h"
 
@@ -37,6 +38,7 @@ using namespace std::chrono_literals;
 *       but point at the same location as the aria velocities
 */
 class ariaNode : public rclcpp::Node {
+
     public:
         ariaNode(float* forwardSpeed, float* rotationSpeed, ArRobot* robotPtr) : Node("Aria_node") {
             currentForwardSpeed = forwardSpeed;
@@ -48,16 +50,16 @@ class ariaNode : public rclcpp::Node {
             );
             
             /* Odom */
-
-            ArRobot* robot;
-            rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr posePub;
-            rclcpp::TimerBase::SharedPtr poseTimer;
-
             posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("robot_pose", 10);
             poseTimer = this->create_wall_timer(50ms, std::bind(&ariaNode::publishPose, this));
         }
 
     private:
+        //odom
+        ArRobot* robot;
+        rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr posePub;
+        rclcpp::TimerBase::SharedPtr poseTimer;
+
         void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
             
             double linearSpeed = msg->linear.x;

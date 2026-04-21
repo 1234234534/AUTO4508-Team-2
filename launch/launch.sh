@@ -17,7 +17,7 @@ ros2 run ariaNode ariaNode -rp /dev/ttyUSB0 &
 sleep 2
 
 #Devices
-ros2 launch depthai_ros_driver camera.launch.py &
+ros2 launch depthai_ros_driver camera.launch.py device_id:=19443010C11F481300 &
 sleep 2
 
 ros2 launch sick_scan_xd sick_tim_5xx. launch.py &

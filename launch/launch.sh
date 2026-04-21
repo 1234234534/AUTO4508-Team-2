@@ -37,7 +37,6 @@ ros2 run robot_localization ekf_node \
 
 sleep 5
 
-ros2 topic echo /odom &
-ros2 topic echo /imu/data_raw &
+ros2 topic echo /odometry/filtered &
 
 wait

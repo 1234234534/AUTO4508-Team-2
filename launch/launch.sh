@@ -23,6 +23,7 @@ ros2 run nmea_navsat_driver nmea_serial_driver \
     --ros-args \
     -p port:=/dev/ttyACM0 \
     -r fix:=/gps/fix &
+ros2 launch phidgets_spatial spatial-launch.py &
 
 # Our Nodes
 ros2 run mode_publisher_package mode_publisher_node &

@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-nmea-navsat-driver \
     ros-jazzy-depthai-ros \
     ros-jazzy-rqt-image-view \
+    ros-jazzy-phidgets-spatial \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

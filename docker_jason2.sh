@@ -8,4 +8,5 @@ docker run -d --name JASON \
     team2-jason tail -f /dev/null \
     
 && docker cp . JASON:/workspace \
-&& docker exec -it JASON bash
+&& docker exec -it JASON bash \
+&& docker rm -f JASON

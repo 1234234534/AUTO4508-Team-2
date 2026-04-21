@@ -56,7 +56,7 @@ class MainDriveNode(Node):
             twist.linear.x = 0.0
             twist.angular.z = 0.0
 
-        self.get_logger().info(f"{twist.linear.x}, {twist.angular.z}", throttle_duration_sec=1.0)
+        #self.get_logger().info(f"{twist.linear.x}, {twist.angular.z}", throttle_duration_sec=1.0)
         self.publisher.publish(twist)
 
 def main(args=None):

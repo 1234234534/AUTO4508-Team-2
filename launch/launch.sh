@@ -35,4 +35,9 @@ ros2 run robot_localization ekf_node \
   --ros-args \
   --params-file /workspace/config/ekf.yaml &
 
+sleep 5
+
+ros2 topic echo /odom &
+ros2 topic echo /imu/data_raw &
+
 wait

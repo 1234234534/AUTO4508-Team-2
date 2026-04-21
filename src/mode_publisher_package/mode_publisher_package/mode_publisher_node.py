@@ -31,12 +31,12 @@ class ModePublisherNode(Node):
             self.allowAuto = "OFF"
 
         #Log Mode
-        self.get_logger().info(f"{self.mode}:{self.allowAuto}:{trigger}")
+        #self.get_logger().info(f"{self.mode}:{self.allowAuto}:{trigger}")
 
         # Publish Mode
         msg_out = String()
         msg_out.data = f"{self.mode}:{self.allowAuto}"
-        self.publisher.publish(msg_out)
+        #self.publisher.publish(msg_out)
 
 def main(args=None):
     rclpy.init(args=args)

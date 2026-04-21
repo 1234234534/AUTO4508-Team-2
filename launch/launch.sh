@@ -27,5 +27,6 @@ ros2 run nmea_navsat_driver nmea_serial_driver \
 # Our Nodes
 ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
+ros2 run main_drive_package odom_node &
 
 wait

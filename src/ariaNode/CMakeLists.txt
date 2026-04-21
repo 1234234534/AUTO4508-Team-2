@@ -6,6 +6,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+#odom
+find_package(nav_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+#original
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -34,6 +40,10 @@ add_executable(ariaNode src/ariaNode.cpp)
 ament_target_dependencies(ariaNode
 "geometry_msgs"
 "rclcpp"
+"nav_msgs"
+"tf2"
+"tf2_ros"
+"tf2_geometry_msgs"
 )
 
 target_link_libraries(

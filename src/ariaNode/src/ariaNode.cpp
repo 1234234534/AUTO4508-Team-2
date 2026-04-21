@@ -48,8 +48,12 @@ class ariaNode : public rclcpp::Node {
             );
             
             /* Odom */
-            posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("robot_pose", 10);
 
+            ArRobot* robot;
+            rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr posePub;
+            rclcpp::TimerBase::SharedPtr poseTimer;
+
+            posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("robot_pose", 10);
             poseTimer = this->create_wall_timer(50ms, std::bind(&ariaNode::publishPose, this));
         }
 
@@ -69,25 +73,24 @@ class ariaNode : public rclcpp::Node {
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSub;
         float* currentForwardSpeed;
         float* currentRotationSpeed;
-    
+
+        //Odom Function
+        void publishPose() {
+            ArPose p = robot->getPose();
+
+            geometry_msgs::msg::Pose2D msg;
+            msg.x = p.getX() / 1000.0;
+            msg.y = p.getY() / 1000.0;
+            msg.theta = p.getTh() * M_PI / 180.0;
+
+            posePub->publish(msg);
+        }
 };
 
 // Deals with ctl+c handling to stop the motors correctly.
 void my_handler(int s){
            printf("Caught signal %d\n",s);
            stopRunning = true;
-}
-
-//Odom Function
-void publishPose() {
-    ArPose p = robot->getPose();
-
-    geometry_msgs::msg::Pose2D msg;
-    msg.x = p.getX() / 1000.0;
-    msg.y = p.getY() / 1000.0;
-    msg.theta = p.getTh() * M_PI / 180.0;
-
-    posePub->publish(msg);
 }
 
 int main(int argc, char** argv) {

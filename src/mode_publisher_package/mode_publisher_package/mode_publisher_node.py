@@ -36,7 +36,7 @@ class ModePublisherNode(Node):
         # Publish Mode
         msg_out = String()
         msg_out.data = f"{self.mode}:{self.allowAuto}"
-        #self.publisher.publish(msg_out)
+        self.publisher.publish(msg_out)
 
 def main(args=None):
     rclpy.init(args=args)

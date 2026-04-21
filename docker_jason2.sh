@@ -7,6 +7,6 @@ docker run -d --name JASON \
     --device=/dev/bus/usb \
     team2-jason tail -f /dev/null \
     
-&& docker cp . JASON:/workspace \
+docker cp . JASON:/workspace \
 && docker exec -it JASON bash \
 && docker rm -f JASON

@@ -7,7 +7,7 @@ ros2 run teleop_twist_joy teleop_node \
     --ros-args \
     -p require_enable_button:=false \
     -p axis_linear.x:=1 \
-    -p scale_linear.x:=1.0 \
+    -p scale_linear.x:=2.0 \
     -p axis_angular.yaw:=0 \
     -p scale_angular.yaw:=1.0 \
     -r /cmd_vel:=cmd_vel_teleop &
@@ -30,35 +30,9 @@ ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
 ros2 run main_drive_package odom_node &
 
-# slam
-ros2 launch slam_toolbox online_async_launch.py \
-    use_sim_time:=false \
-    slam_params_file:=src/pioneer_robot/config/slam_params.yaml &
-
-#nav 2
-ros2 run nav2_controller controller_server \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml \
-    -r cmd_vel:=cmd_vel_nav &
-ros2 run nav2_smoother smoother_server \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml &
-ros2 run nav2_planner planner_server \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml &
-ros2 run nav2_behaviors behavior_server \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml \
-    -r cmd_vel:=cmd_vel_nav &
-ros2 run nav2_bt_navigator bt_navigator \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml &
-ros2 run nav2_waypoint_follower waypoint_follower \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml &
-ros2 run nav2_velocity_smoother velocity_smoother \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml \
-    -r cmd_vel:=cmd_vel_nav &
-ros2 run nav2_collision_monitor collision_monitor \
-    --ros-args --params-file src/pioneer_robot/config/nav2_params.yaml &
-ros2 run nav2_lifecycle_manager lifecycle_manager \
-    --ros-args \
-    -p use_sim_time:=false \
-    -p autostart:=true \
-    -p node_names:='["controller_server","smoother_server","planner_server","behavior_server","bt_navigator","waypoint_follower","velocity_smoother","collision_monitor"]' &
+# EKF
+ros2 run robot_localization ekf_node \
+  --ros-args \
+  --params-file /workspace/config/ekf.yaml &
 
 wait

@@ -110,6 +110,7 @@ class PointAndShoot(Node):
 
         dist = haversine(self.current_lat, self.current_lon, target_lat, target_lon)
         target_bearing = bearing(self.current_lat, self.current_lon, target_lat, target_lon)
+        target_bearing = 360 - target_bearing
         heading = self.get_heading()
 
         # Check

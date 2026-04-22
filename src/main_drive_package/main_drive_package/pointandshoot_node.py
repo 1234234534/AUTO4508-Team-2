@@ -44,7 +44,7 @@ class PointAndShoot(Node):
 
         # Subscribers
         self.create_subscription(Imu, '/imu/mag', self.imu_callback, 10)
-        self.create_subscription(NavSatFix, '/gps/fixed', self.gps_callback, 10)
+        self.create_subscription(NavSatFix, '/gps/fix', self.gps_callback, 10)
 
         # Publisher
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_pointandshoot', 10)

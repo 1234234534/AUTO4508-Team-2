@@ -1,9 +1,9 @@
 import math
 import rclpy
 from rclpy.node import Node
-
 from sensor_msgs.msg import Imu, NavSatFix
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import MagneticField
 
 
 def deg2rad(d):
@@ -43,7 +43,7 @@ class PointAndShoot(Node):
         super().__init__('pointandshoot_node')
 
         # Subscribers
-        self.create_subscription(Imu, '/imu/raw_data', self.imu_callback, 10)
+        self.create_subscription(Imu, '/imu/mag', self.imu_callback, 10)
         self.create_subscription(NavSatFix, '/gps/fixed', self.gps_callback, 10)
 
         # Publisher
@@ -71,20 +71,23 @@ class PointAndShoot(Node):
     # ---------------- IMU ----------------
     def imu_callback(self, msg):
         # Adjust if your message differs
+        """
         try:
             self.mag_x = msg.mag_field.x
             self.mag_y = msg.mag_field.y
             self.mag_z = msg.mag_field.z
-        except:
-            # fallback (common custom format)
-            self.mag_x = msg.magnetic_field.x
-            self.mag_y = msg.magnetic_field.y
-            self.mag_z = msg.magnetic_field.z
+        except:"""
+        # fallback (common custom format)
+        self.mag_x = msg.magnetic_field.x
+        self.mag_y = msg.magnetic_field.y
+        self.mag_z = msg.magnetic_field.z
+        self.get_logger().info("IMU Callback")
 
     # ---------------- GPS ----------------
     def gps_callback(self, msg):
         self.current_lat = msg.latitude
         self.current_lon = msg.longitude
+        self.get_logger().info("GPS Callback")
 
     # ---------------- Heading from magnetometer ----------------
     def get_heading(self):
@@ -99,10 +102,12 @@ class PointAndShoot(Node):
     # ---------------- Main control ----------------
     def control_loop(self):
         if self.current_lat is None or self.current_lon is None:
+            self.get_logger().info("Control Loop NONE FOUND")
             return
 
         if self.current_wp >= len(self.waypoints):
             self.stop_robot()
+            self.get_logger().info("Done All Waypoints")
             return
 
         target_lat, target_lon = self.waypoints[self.current_wp]
@@ -112,6 +117,7 @@ class PointAndShoot(Node):
         heading = self.get_heading()
 
         if heading is None:
+            self.get_logger().info("No Heading")
             return
 
         # Error in heading
@@ -131,11 +137,13 @@ class PointAndShoot(Node):
             cmd.linear.x = 0.0
 
         self.cmd_pub.publish(cmd)
+        self.get_logger().info("Should've just done a cmd_vel_pointandshoot")
 
         # waypoint reached
         if dist < 1.5:  # meters
             self.get_logger().info(f"Reached waypoint {self.current_wp}")
             self.current_wp += 1
+            self.get_logger().info("Reached a Waypoint")
 
     def stop_robot(self):
         cmd = Twist()

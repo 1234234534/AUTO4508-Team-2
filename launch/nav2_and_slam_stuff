@@ -30,3 +30,8 @@ ros2 run nav2_lifecycle_manager lifecycle_manager \
     -p use_sim_time:=false \
     -p autostart:=true \
     -p node_names:='["controller_server","smoother_server","planner_server","behavior_server","bt_navigator","waypoint_follower","velocity_smoother","collision_monitor"]' &
+
+# EKF
+ros2 run robot_localization ekf_node \
+  --ros-args \
+  --params-file /workspace/config/ekf.yaml &

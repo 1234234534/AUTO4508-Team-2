@@ -29,14 +29,6 @@ ros2 launch phidgets_spatial spatial-launch.py &
 ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
 ros2 run main_drive_package odom_node &
-
-# EKF
-ros2 run robot_localization ekf_node \
-  --ros-args \
-  --params-file /workspace/config/ekf.yaml &
-
-sleep 5
-
-ros2 topic echo /odometry/filtered &
+ros2 run main_drive_package pointandshoot_node &
 
 wait

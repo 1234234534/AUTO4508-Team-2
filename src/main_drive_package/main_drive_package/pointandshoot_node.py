@@ -43,7 +43,7 @@ class PointAndShoot(Node):
         super().__init__('pointandshoot_node')
 
         # Subscribers
-        self.create_subscription(Imu, '/imu/mag', self.imu_callback, 10)
+        self.create_subscription(MagneticField, '/imu/mag', self.imu_callback, 10)
         self.create_subscription(NavSatFix, '/gps/fix', self.gps_callback, 10)
 
         # Publisher

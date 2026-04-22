@@ -52,6 +52,10 @@ class PointAndShoot(Node):
         self.mag_y = None
         self.mag_z = None
 
+        self.offset_x = 0.000126
+        self.offset_y = 0.000041
+
+
         # Hardcoded GPS waypoints (lat, lon)
         self.waypoints = [
             (-31.980188, 115.81734517),
@@ -65,8 +69,8 @@ class PointAndShoot(Node):
 
     # ---------------- IMU ----------------
     def imu_callback(self, msg):
-        self.mag_x = msg.magnetic_field.x
-        self.mag_y = msg.magnetic_field.y
+        self.mag_x = msg.magnetic_field.x - self.offset_x
+        self.mag_y = msg.magnetic_field.y - self.offset_y
         self.mag_z = msg.magnetic_field.z
         #self.get_logger().info("IMU Callback")
 
@@ -129,7 +133,7 @@ class PointAndShoot(Node):
             cmd.linear.x = 0.0
 
         self.cmd_pub.publish(cmd)
-        self.get_logger().info(f"magX={self.mag_x}, magY={self.mag_y}, magZ={self.mag_z}")#, TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
+        self.get_logger().info(f"magX={self.mag_x}, magY={self.mag_y}, magZ={self.mag_z}, heading={heading}")#, TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
 
         # waypoint reached
         if dist < 1.5:  # meters

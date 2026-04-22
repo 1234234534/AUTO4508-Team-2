@@ -58,6 +58,7 @@ class PointAndShoot(Node):
 
         # Hardcoded GPS waypoints (lat, lon)
         self.waypoints = [
+            (-31.97994983, 115.817576),
             (-31.980188, 115.81734517),
             (-31.97994983, 115.817576),
             (-31.9520, 115.8625),

@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-rqt-image-view \
     ros-jazzy-phidgets-spatial \
     ros-jazzy-robot-localization \
+    
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

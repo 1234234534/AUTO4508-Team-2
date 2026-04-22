@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'main_drive_node = main_drive_package.main_drive_node:main',
-            'odom_node = main_drive_package.odom_node:main'
+            'odom_node = main_drive_package.odom_node:main',
+            'pointandshoot_node = main_drive_package.pointandshoot_node:main'
         ],
     },
 )

@@ -7,7 +7,7 @@ ros2 run teleop_twist_joy teleop_node \
     --ros-args \
     -p require_enable_button:=false \
     -p axis_linear.x:=1 \
-    -p scale_linear.x:=2.0 \
+    -p scale_linear.x:=4.0 \
     -p axis_angular.yaw:=0 \
     -p scale_angular.yaw:=1.0 \
     -r /cmd_vel:=cmd_vel_teleop &

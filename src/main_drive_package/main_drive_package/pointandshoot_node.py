@@ -5,14 +5,11 @@ from sensor_msgs.msg import Imu, NavSatFix
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import MagneticField
 
-
 def deg2rad(d):
     return d * math.pi / 180.0
 
-
 def rad2deg(r):
     return r * 180.0 / math.pi
-
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371000.0  # Earth radius (m)
@@ -25,7 +22,6 @@ def haversine(lat1, lon1, lat2, lon2):
     a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
     return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
-
 def bearing(lat1, lon1, lat2, lon2):
     phi1 = deg2rad(lat1)
     phi2 = deg2rad(lat2)
@@ -35,7 +31,6 @@ def bearing(lat1, lon1, lat2, lon2):
     x = math.cos(phi1)*math.sin(phi2) - math.sin(phi1)*math.cos(phi2)*math.cos(dlambda)
 
     return (rad2deg(math.atan2(y, x)) + 360) % 360
-
 
 class PointAndShoot(Node):
 
@@ -128,13 +123,13 @@ class PointAndShoot(Node):
         cmd.angular.z = 0.002 * error
 
         # forward speed proportional to alignment
-        if abs(error) < 10:
+        if abs(error) < 20:
             cmd.linear.x = min(0.5, dist * 0.2)
         else:
             cmd.linear.x = 0.0
 
         self.cmd_pub.publish(cmd)
-        self.get_logger().info(f"TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
+        self.get_logger().info(f"magX={self.mag_x}, magY={self.mag_y}, magZ={self.mag_z}, TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
 
         # waypoint reached
         if dist < 1.5:  # meters

@@ -31,4 +31,7 @@ ros2 run main_drive_package main_drive_node &
 #ros2 run main_drive_package odom_node &
 ros2 run main_drive_package pointandshoot_node &
 
+# Record Journey
+ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &
+
 wait

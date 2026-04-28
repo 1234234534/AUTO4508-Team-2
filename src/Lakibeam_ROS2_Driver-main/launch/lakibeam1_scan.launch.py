@@ -90,7 +90,7 @@ def generate_launch_description():
     )
     declare_filter_cmd = DeclareLaunchArgument(
     'filter',
-    default_value='"3"',
+    default_value='"0"',
     )
     declare_scanfreq_cmd = DeclareLaunchArgument(
     'scanfreq',

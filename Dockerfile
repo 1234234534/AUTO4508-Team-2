@@ -26,6 +26,8 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-robot-localization \
     ros-jazzy-pcl-conversions \
     ros-jazzy-pcl-ros \
+    iproute2 \
+    nmap \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

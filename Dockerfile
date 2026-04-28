@@ -37,8 +37,8 @@ RUN pip3 install depthai --break-system-packages
 WORKDIR /opt
 RUN git clone https://github.com/reedhedges/AriaCoda.git /AriaCoda && cd /AriaCoda && make && make install
 
-WORKDIR /workspace/src
-RUN git clone https://github.com/RichbeamTechnology/Lakibeam_ROS2_Driver
+#WORKDIR /workspace/src
+#RUN git clone https://github.com/RichbeamTechnology/Lakibeam_ROS2_Driver
 
 # Set working directory
 WORKDIR /workspace

@@ -33,7 +33,7 @@ ros2 run main_drive_package pointandshoot_node &
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &
 
-ip addr add 192.168.198.1/24 dev enp89s0 2>/dev/null || true
-ros2 launch lakibeam lakibeam1_scan.launch.py &
+#ip addr add 192.168.198.1/24 dev enp89s0 2>/dev/null || true
+ros2 launch lakibeam1 lakibeam1_scan.launch.py &
 
 wait

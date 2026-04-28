@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-pcl-ros \
     iproute2 \
     nmap \
+    ros-jazzy-rviz2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai
@@ -37,7 +38,7 @@ WORKDIR /opt
 RUN git clone https://github.com/reedhedges/AriaCoda.git /AriaCoda && cd /AriaCoda && make && make install
 
 WORKDIR /workspace/src
-RUN git clone https://github.com/RichbeamTechnology/Lakibeam_ROS2_Driver && cd /workspace && colcon build --packages-select lakibeam1
+RUN git clone https://github.com/RichbeamTechnology/Lakibeam_ROS2_Driver && cd /workspace && colcon build
 
 # Set working directory
 WORKDIR /workspace

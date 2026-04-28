@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-rqt-image-view \
     ros-jazzy-phidgets-spatial \
     ros-jazzy-robot-localization \
+    ros-jazzy-pcl-conversions \
+    ros-jazzy-pcl-ros \
     
     && rm -rf /var/lib/apt/lists/*
 
@@ -32,6 +34,9 @@ RUN pip3 install depthai --break-system-packages
 
 WORKDIR /opt
 RUN git clone https://github.com/reedhedges/AriaCoda.git /AriaCoda && cd /AriaCoda && make && make install
+
+WORKDIR /workspace/src
+RUN git clone https://github.com/RichbeamTechnology/Lakibeam_ROS2_Driver && cd /workspace && colcon build --packages-select lakibeam
 
 # Set working directory
 WORKDIR /workspace

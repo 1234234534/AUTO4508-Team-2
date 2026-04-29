@@ -126,7 +126,7 @@ class PointAndShoot(Node):
 
         # ---------------- Control --------------------
         # turn toward target
-        cmd.angular.z = 0.002 * error
+        cmd.angular.z = -0.002 * error
 
         # forward speed proportional to alignment
         if abs(error) < 20:

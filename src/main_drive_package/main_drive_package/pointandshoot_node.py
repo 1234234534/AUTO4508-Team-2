@@ -58,8 +58,8 @@ class PointAndShoot(Node):
 
         # Hardcoded GPS waypoints (lat, lon)
         self.waypoints = [
-            (-31.9804058, 115.8178087),
-            (-31.9799439, 115.8175824),
+            #(-31.9804058, 115.8178087),
+            #(-31.9799439, 115.8175824),
             (-31.9801936, 115.8173269),
             (-31.9804999, 115.8173320)
         ]
@@ -135,9 +135,9 @@ class PointAndShoot(Node):
             cmd.linear.x = 0.0
 
         self.cmd_pub.publish(cmd)
-        #self.get_logger().info(f"TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
-        self.get_logger().info(f"mag_x={self.mag_x}, mag_y={self.mag_y}")
-        self.get_logger().info(f"{heading}")
+        self.get_logger().info(f"TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
+        #self.get_logger().info(f"mag_x={self.mag_x}, mag_y={self.mag_y}")
+        #self.get_logger().info(f"{heading}")
 
         # waypoint reached
         if dist < 1.5:  # meters

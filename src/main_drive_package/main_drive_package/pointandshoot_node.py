@@ -135,7 +135,8 @@ class PointAndShoot(Node):
             cmd.linear.x = 0.0
 
         self.cmd_pub.publish(cmd)
-        self.get_logger().info(f"TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
+        #self.get_logger().info(f"TLat={target_lat}, TLon={target_lon}, Lat={self.current_lat}, Lon={self.current_lon}, TargetAng={target_bearing}, Heading={heading}, error={error}, dist={dist}")
+        self.get_logger().info(f"mag_x={self.mag_x}, mag_y={self.mag_y}")
         self.get_logger().info(f"{heading}")
 
         # waypoint reached

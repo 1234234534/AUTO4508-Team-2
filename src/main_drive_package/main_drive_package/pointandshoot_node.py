@@ -88,7 +88,7 @@ class PointAndShoot(Node):
 
         # Simple 2D compass heading
         heading = math.atan2(self.mag_y, self.mag_x)
-        heading_deg = (rad2deg(heading) -142 + 12 + 360) % 360
+        heading_deg = (rad2deg(heading) -142 + 12 +35 + 360) % 360
         return heading_deg
 
     # ---------------- Main control ----------------

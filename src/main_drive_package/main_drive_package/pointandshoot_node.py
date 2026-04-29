@@ -52,8 +52,8 @@ class PointAndShoot(Node):
         self.mag_y = None
         self.mag_z = None
 
-        self.offset_x = 0.0000655235 #0.000126
-        self.offset_y = 0.0000548715 #0.000041
+        self.offset_x = (0.0000655235 - 0.00000096)  #0.000126
+        self.offset_y = (0.0000548715 + 0.00000189)  #0.000041
 
 
         # Hardcoded GPS waypoints (lat, lon)
@@ -70,8 +70,8 @@ class PointAndShoot(Node):
 
     # ---------------- IMU ----------------
     def imu_callback(self, msg):
-        self.mag_x = msg.magnetic_field.x - self.offset_x
-        self.mag_y = msg.magnetic_field.y - self.offset_y
+        self.mag_x = (msg.magnetic_field.x - self.offset_x) / 0.000065
+        self.mag_y = (msg.magnetic_field.y - self.offset_y) / 0.0000438
         self.mag_z = msg.magnetic_field.z
         #self.get_logger().info("IMU Callback")
 

@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     nmap \
     ros-jazzy-rviz2 \
+    zathura \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

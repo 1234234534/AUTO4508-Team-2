@@ -1,6 +1,8 @@
 colcon build
 source install/setup.bash
 
+export ROS_DOMAIN_ID=2 &
+
 # Controller
 ros2 run joy joy_node --ros-args -p device:=/dev/input/js0 &
 ros2 run teleop_twist_joy teleop_node \

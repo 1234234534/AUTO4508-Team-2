@@ -1,42 +1,61 @@
 #!/usr/bin/env python3
+"""
+Greek Letter Detector Node (EasyOCR)
+- Subscribes to camera feed (/oak/rgb/image_rect)
+- Uses EasyOCR with Greek language to detect hand-drawn Greek letters
+- Logs whether a Greek letter is detected or not
+"""
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
-import pytesseract
 import numpy as np
+import easyocr
 
 
-class GreekLetterDetection(Node):
+class GreekLetterDetector(Node):
     def __init__(self):
         super().__init__('greek_letter_detection')
+
         self.bridge = CvBridge()
         self.last_detection_time = self.get_clock().now()
         self.detection_interval = 3.0
 
-        # All Greek letters to check against
-        self.greek_letters = [
-            'Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ',
-            'Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω',
-            'α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ',
-            'ν','ξ','ο','π','ρ','σ','τ','υ','φ','χ','ψ','ω'
-        ]
-
+        # Map detected text to Greek letter names
         self.greek_names = {
-            'Α': 'Alpha', 'Β': 'Beta', 'Γ': 'Gamma', 'Δ': 'Delta',
-            'Ε': 'Epsilon', 'Ζ': 'Zeta', 'Η': 'Eta', 'Θ': 'Theta',
-            'Ι': 'Iota', 'Κ': 'Kappa', 'Λ': 'Lambda', 'Μ': 'Mu',
-            'Ν': 'Nu', 'Ξ': 'Xi', 'Ο': 'Omicron', 'Π': 'Pi',
-            'Ρ': 'Rho', 'Σ': 'Sigma', 'Τ': 'Tau', 'Υ': 'Upsilon',
-            'Φ': 'Phi', 'Χ': 'Chi', 'Ψ': 'Psi', 'Ω': 'Omega',
-            'α': 'Alpha', 'β': 'Beta', 'γ': 'Gamma', 'δ': 'Delta',
-            'ε': 'Epsilon', 'ζ': 'Zeta', 'η': 'Eta', 'θ': 'Theta',
-            'ι': 'Iota', 'κ': 'Kappa', 'λ': 'Lambda', 'μ': 'Mu',
-            'ν': 'Nu', 'ξ': 'Xi', 'ο': 'Omicron', 'π': 'Pi',
-            'ρ': 'Rho', 'σ': 'Sigma', 'τ': 'Tau', 'υ': 'Upsilon',
-            'φ': 'Phi', 'χ': 'Chi', 'ψ': 'Psi', 'ω': 'Omega'
+            'Α': 'Alpha',   'α': 'Alpha',
+            'Β': 'Beta',    'β': 'Beta',
+            'Γ': 'Gamma',   'γ': 'Gamma',
+            'Δ': 'Delta',   'δ': 'Delta',
+            'Ε': 'Epsilon', 'ε': 'Epsilon',
+            'Ζ': 'Zeta',    'ζ': 'Zeta',
+            'Η': 'Eta',     'η': 'Eta',
+            'Θ': 'Theta',   'θ': 'Theta',
+            'Ι': 'Iota',    'ι': 'Iota',
+            'Κ': 'Kappa',   'κ': 'Kappa',
+            'Λ': 'Lambda',  'λ': 'Lambda',
+            'Μ': 'Mu',      'μ': 'Mu',
+            'Ν': 'Nu',      'ν': 'Nu',
+            'Ξ': 'Xi',      'ξ': 'Xi',
+            'Ο': 'Omicron', 'ο': 'Omicron',
+            'Π': 'Pi',      'π': 'Pi',
+            'Ρ': 'Rho',     'ρ': 'Rho',
+            'Σ': 'Sigma',   'σ': 'Sigma',
+            'Τ': 'Tau',     'τ': 'Tau',
+            'Υ': 'Upsilon', 'υ': 'Upsilon',
+            'Φ': 'Phi',     'φ': 'Phi',
+            'Χ': 'Chi',     'χ': 'Chi',
+            'Ψ': 'Psi',     'ψ': 'Psi',
+            'Ω': 'Omega',   'ω': 'Omega',
         }
+
+        # Initialise EasyOCR with Greek and English
+        # gpu=False since robot may not have CUDA
+        self.get_logger().info('Loading EasyOCR model (this may take a moment)...')
+        self.reader = easyocr.Reader(['el', 'en'], gpu=False)
+        self.get_logger().info('EasyOCR model loaded')
 
         self.image_sub = self.create_subscription(
             Image,
@@ -44,19 +63,19 @@ class GreekLetterDetection(Node):
             self.image_callback,
             10
         )
-        self.get_logger().info('Greek Letter Detector started (Tesseract mode)')
+
+        self.get_logger().info('Greek Letter Detector started (EasyOCR mode)')
 
     def preprocess_image(self, cv_image):
         """Preprocess image to improve OCR accuracy"""
         # Convert to greyscale
         grey = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
 
-        # Resize to make letter larger (helps OCR)
-        scale = 2.0
-        grey = cv2.resize(grey, None, fx=scale, fy=scale,
-                         interpolation=cv2.INTER_CUBIC)
+        # Upscale to make letters larger and easier to detect
+        grey = cv2.resize(grey, None, fx=2.0, fy=2.0,
+                          interpolation=cv2.INTER_CUBIC)
 
-        # Apply threshold to get clean black/white image
+        # Apply Otsu threshold for clean black/white image
         _, thresh = cv2.threshold(
             grey, 0, 255,
             cv2.THRESH_BINARY + cv2.THRESH_OTSU
@@ -68,6 +87,7 @@ class GreekLetterDetection(Node):
         return thresh
 
     def image_callback(self, msg):
+        """Process incoming camera frames"""
         now = self.get_clock().now()
         elapsed = (now - self.last_detection_time).nanoseconds / 1e9
 
@@ -85,25 +105,31 @@ class GreekLetterDetection(Node):
             self.get_logger().error(f'Image processing error: {str(e)}')
 
     def detect_greek_letter(self, processed_image):
-        """Use Tesseract OCR to detect Greek letters"""
+        """Use EasyOCR to detect Greek letters in the image"""
         try:
-            # Run OCR with Greek language
-            text = pytesseract.image_to_string(
-                processed_image,
-                lang='ell',  # Greek language
-                config='--psm 10 --oem 3'  # PSM 10 = single character
-            ).strip()
+            # Run OCR - detail=0 returns just text, detail=1 returns bounding boxes too
+            results = self.reader.readtext(processed_image, detail=1)
 
-            # Check if any detected character is a Greek letter
-            detected = None
-            for char in text:
-                if char in self.greek_letters:
-                    detected = char
-                    break
+            detected_letter = None
+            best_confidence = 0.0
 
-            if detected:
-                name = self.greek_names.get(detected, 'Unknown')
-                self.get_logger().info(f'LETTER DETECTED: {name} ({detected})')
+            for (bbox, text, confidence) in results:
+                self.get_logger().debug(
+                    f'OCR result: "{text}" confidence: {confidence:.2f}'
+                )
+
+                # Check each character in the detected text
+                for char in text:
+                    if char in self.greek_names and confidence > best_confidence:
+                        detected_letter = char
+                        best_confidence = confidence
+
+            if detected_letter:
+                name = self.greek_names[detected_letter]
+                self.get_logger().info(
+                    f'LETTER DETECTED: {name} ({detected_letter}) '
+                    f'[confidence: {best_confidence:.2f}]'
+                )
             else:
                 self.get_logger().info('No letter detected')
 
@@ -113,7 +139,7 @@ class GreekLetterDetection(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = GreekLetterDetection()
+    node = GreekLetterDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

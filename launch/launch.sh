@@ -27,7 +27,7 @@ ros2 launch lakibeam1 lakibeam1_scan.launch.py &
 
 #TF Tree Static Transformations
 ros2 run tf2_ros static_transform_publisher 0.2 0 0 0 0 0 base_link oak-d-base-frame &
-ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
+#ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
 
 # Our Nodes
 ros2 run mode_publisher_package mode_publisher_node &

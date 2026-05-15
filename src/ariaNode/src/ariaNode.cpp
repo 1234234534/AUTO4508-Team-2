@@ -50,7 +50,7 @@ class ariaNode : public rclcpp::Node {
             );
             
             /* Odom */
-            posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("robot_pose", 10);
+            posePub = this->create_publisher<geometry_msgs::msg::Pose2D>("/robot_pose", 10);
             poseTimer = this->create_wall_timer(50ms, std::bind(&ariaNode::publishPose, this));
         }
 

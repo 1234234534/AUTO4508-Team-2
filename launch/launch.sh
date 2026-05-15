@@ -34,7 +34,7 @@ ros2 run main_drive_package odom_node &
 #ros2 run main_drive_package pointandshoot_node &
 
 #SLAM
-ros2 launch slam_toolbox online_async_launch.py &
+#ros2 launch slam_toolbox online_async_launch.py &
 
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &

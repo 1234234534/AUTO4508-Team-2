@@ -54,7 +54,7 @@ class GreekLetterDetector(Node):
         # Initialise EasyOCR with Greek and English
         # gpu=False since robot may not have CUDA
         self.get_logger().info('Loading EasyOCR model (this may take a moment)...')
-        self.reader = easyocr.Reader(['el', 'en'], gpu=False)
+        self.reader = easyocr.Reader(['en'], gpu=False)
         self.get_logger().info('EasyOCR model loaded')
 
         self.image_sub = self.create_subscription(

@@ -23,6 +23,9 @@ ros2 launch depthai_ros_driver camera.launch.py device_id:=19443010C11F481300 &
 #ros2 run nmea_navsat_driver nmea_serial_driver --ros-args -p port:=/dev/ttyACM0 -r fix:=/gps/fix &
 ros2 launch phidgets_spatial spatial-launch.py &
 
+#TF Tree Static Transformations
+ros2 run tf2_ros static_transform_publisher 0.2 0 0 0 0 0 base_link oak-d-base-frame &
+
 # Our Nodes
 ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &

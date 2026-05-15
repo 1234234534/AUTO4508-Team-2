@@ -33,6 +33,7 @@ class OdomNode(Node):
 
         odom.pose.pose.position.x = msg.x
         odom.pose.pose.position.y = msg.y
+        odom.pose.pose.position.z = 0.0
 
         q = tf_transformations.quaternion_from_euler(0, 0, msg.theta)
         odom.pose.pose.orientation = Quaternion(
@@ -40,23 +41,28 @@ class OdomNode(Node):
         )
 
         self.pub.publish(odom)
-
+        """
         # Position & Orientation
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         yaw = YawFromQuaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w)
         #self.get_logger().info(f"x: {x:.2f}, y: {y:.2f}, yaw: {yaw:.2f}")
-        
+        """
         # tf
         t = TransformStamped()
 
-        t.header.stamp = msg.header.stamp
+        t.header.stamp = odom.header.stamp
         t.header.frame_id = "odom"
         t.child_frame_id = "base_link"
-        t.transform.translation.x = msg.pose.pose.position.x
-        t.transform.translation.y = msg.pose.pose.position.y
-        t.transform.translation.z = msg.pose.pose.position.z
-        t.transform.rotation = msg.pose.pose.orientation
+        t.transform.translation.x = msg.x
+        t.transform.translation.y = msg.y
+        t.transform.translation.z = 0.0
+        t.transform.rotation = Quaternion(
+            x=q[0],
+            y=q[1],
+            z=q[2],
+            w=q[3]
+        )
         self.tf_broadcaster.sendTransform(t)
 
 def main(args=None):

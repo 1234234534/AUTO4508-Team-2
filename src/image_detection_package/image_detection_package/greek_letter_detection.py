@@ -1,30 +1,42 @@
 #!/usr/bin/env python3
-"""
-Greek Letter Detector Node
-- Subscribes to camera feed (/oak/rgb/image_rect)
-- Periodically sends frames to Claude Vision API
-- Logs whether a Greek letter is detected or not
-"""
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
-import base64
-import json
-import requests
+import pytesseract
+import numpy as np
 
 
-class GreekLetterDetector(Node):
+class GreekLetterDetection(Node):
     def __init__(self):
         super().__init__('greek_letter_detection')
-
         self.bridge = CvBridge()
         self.last_detection_time = self.get_clock().now()
-
-        # How often to check for letters (seconds)
         self.detection_interval = 3.0
+
+        # All Greek letters to check against
+        self.greek_letters = [
+            'Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ',
+            'Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω',
+            'α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ',
+            'ν','ξ','ο','π','ρ','σ','τ','υ','φ','χ','ψ','ω'
+        ]
+
+        self.greek_names = {
+            'Α': 'Alpha', 'Β': 'Beta', 'Γ': 'Gamma', 'Δ': 'Delta',
+            'Ε': 'Epsilon', 'Ζ': 'Zeta', 'Η': 'Eta', 'Θ': 'Theta',
+            'Ι': 'Iota', 'Κ': 'Kappa', 'Λ': 'Lambda', 'Μ': 'Mu',
+            'Ν': 'Nu', 'Ξ': 'Xi', 'Ο': 'Omicron', 'Π': 'Pi',
+            'Ρ': 'Rho', 'Σ': 'Sigma', 'Τ': 'Tau', 'Υ': 'Upsilon',
+            'Φ': 'Phi', 'Χ': 'Chi', 'Ψ': 'Psi', 'Ω': 'Omega',
+            'α': 'Alpha', 'β': 'Beta', 'γ': 'Gamma', 'δ': 'Delta',
+            'ε': 'Epsilon', 'ζ': 'Zeta', 'η': 'Eta', 'θ': 'Theta',
+            'ι': 'Iota', 'κ': 'Kappa', 'λ': 'Lambda', 'μ': 'Mu',
+            'ν': 'Nu', 'ξ': 'Xi', 'ο': 'Omicron', 'π': 'Pi',
+            'ρ': 'Rho', 'σ': 'Sigma', 'τ': 'Tau', 'υ': 'Upsilon',
+            'φ': 'Phi', 'χ': 'Chi', 'ψ': 'Psi', 'ω': 'Omega'
+        }
 
         self.image_sub = self.create_subscription(
             Image,
@@ -32,11 +44,30 @@ class GreekLetterDetector(Node):
             self.image_callback,
             10
         )
+        self.get_logger().info('Greek Letter Detector started (Tesseract mode)')
 
-        self.get_logger().info('Greek Letter Detector started')
+    def preprocess_image(self, cv_image):
+        """Preprocess image to improve OCR accuracy"""
+        # Convert to greyscale
+        grey = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+
+        # Resize to make letter larger (helps OCR)
+        scale = 2.0
+        grey = cv2.resize(grey, None, fx=scale, fy=scale,
+                         interpolation=cv2.INTER_CUBIC)
+
+        # Apply threshold to get clean black/white image
+        _, thresh = cv2.threshold(
+            grey, 0, 255,
+            cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )
+
+        # Denoise
+        thresh = cv2.medianBlur(thresh, 3)
+
+        return thresh
 
     def image_callback(self, msg):
-        """Process incoming camera frames"""
         now = self.get_clock().now()
         elapsed = (now - self.last_detection_time).nanoseconds / 1e9
 
@@ -47,72 +78,42 @@ class GreekLetterDetector(Node):
 
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            _, buffer = cv2.imencode('.jpg', cv_image, [cv2.IMWRITE_JPEG_QUALITY, 85])
-            image_b64 = base64.standard_b64encode(buffer).decode('utf-8')
-            self.detect_greek_letter(image_b64)
+            processed = self.preprocess_image(cv_image)
+            self.detect_greek_letter(processed)
 
         except Exception as e:
             self.get_logger().error(f'Image processing error: {str(e)}')
 
-    def detect_greek_letter(self, image_b64):
-        """Send image to Claude API for Greek letter detection"""
+    def detect_greek_letter(self, processed_image):
+        """Use Tesseract OCR to detect Greek letters"""
         try:
-            response = requests.post(
-                'https://api.anthropic.com/v1/messages',
-                headers={'Content-Type': 'application/json'},
-                json={
-                    'model': 'claude-sonnet-4-20250514',
-                    'max_tokens': 200,
-                    'messages': [
-                        {
-                            'role': 'user',
-                            'content': [
-                                {
-                                    'type': 'image',
-                                    'source': {
-                                        'type': 'base64',
-                                        'media_type': 'image/jpeg',
-                                        'data': image_b64
-                                    }
-                                },
-                                {
-                                    'type': 'text',
-                                    'text': (
-                                        'Is there a hand-drawn Greek letter visible in this image? '
-                                        'Respond ONLY in this exact JSON format with no other text: '
-                                        '{"detected": true, "letter_name": "Alpha"} '
-                                        'or {"detected": false}'
-                                    )
-                                }
-                            ]
-                        }
-                    ]
-                },
-                timeout=10
-            )
+            # Run OCR with Greek language
+            text = pytesseract.image_to_string(
+                processed_image,
+                lang='ell',  # Greek language
+                config='--psm 10 --oem 3'  # PSM 10 = single character
+            ).strip()
 
-            if response.status_code == 200:
-                result_text = response.json()['content'][0]['text'].strip()
-                result = json.loads(result_text)
+            # Check if any detected character is a Greek letter
+            detected = None
+            for char in text:
+                if char in self.greek_letters:
+                    detected = char
+                    break
 
-                if result.get('detected'):
-                    self.get_logger().info(
-                        f'LETTER DETECTED: {result.get("letter_name", "Unknown")}'
-                    )
-                else:
-                    self.get_logger().info('No letter detected')
+            if detected:
+                name = self.greek_names.get(detected, 'Unknown')
+                self.get_logger().info(f'LETTER DETECTED: {name} ({detected})')
             else:
-                self.get_logger().warning(f'API error: {response.status_code}')
+                self.get_logger().info('No letter detected')
 
-        except json.JSONDecodeError:
-            self.get_logger().warning('Could not parse API response')
         except Exception as e:
-            self.get_logger().error(f'API call failed: {str(e)}')
+            self.get_logger().error(f'OCR error: {str(e)}')
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = GreekLetterDetector()
+    node = GreekLetterDetection()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -34,10 +34,18 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
 ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
 ros2 run main_drive_package odom_node &
+
+ros2 run pioneer_robot explorer &
+ros2 run pioneer_robot perception & 
 #ros2 run main_drive_package pointandshoot_node &
 
 #SLAM
 ros2 launch slam_toolbox online_async_launch.py &
+
+#Nav2
+ros2 launch nav2_bringup navigation_launch.py \
+    params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \
+    use_sim_time:=false &
 
 #rviz2
 rviz2 -d rviz2_config.rviz &

@@ -14,14 +14,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0.0"/>
       <geometry name="pioneer_geom">
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/chassis.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/chassis.dae"/>
       </geometry>
       <material name="ChassisRed"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0.0"/>
       <geometry>
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/chassis.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/chassis.dae"/>
       </geometry>
     </collision>
   </link>
@@ -51,7 +51,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry name="pioneer_geom">
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/top.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/top.dae"/>
       </geometry>
       <material name="TopBlack">
         <color rgba="0.038 0.038 0.038 1.0"/>
@@ -83,7 +83,7 @@
     <visual name="front_left_axle">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry name="pioneer_geom">
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
       </geometry>
       <material name="AxleGrey">
         <color rgba="0.5 0.5 0.5 1"/>
@@ -114,7 +114,7 @@
     <visual name="front_left_hub">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry name="pioneer_geom">
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/left_hubcap.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/left_hubcap.dae"/>
       </geometry>
       <material name="HubcapYellow">
         <color rgba="1.0 0.811 0.151 1.0"/>
@@ -145,7 +145,7 @@
     <visual name="front_left_wheel">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry name="pioneer_geom">
-        <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
+        <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
       </geometry>
       <material name="WheelBlack">
         <color rgba="0.117 0.117 0.117 1"/>
@@ -206,7 +206,7 @@
   <visual name="front_right_axle">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
     </geometry>
     <material name="AxleGrey">
       <color rgba="0.5 0.5 0.5 1"/>
@@ -237,7 +237,7 @@
   <visual name="front_right_hub">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/right_hubcap.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/right_hubcap.dae"/>
     </geometry>
     <material name="HubcapYellow">
       <color rgba="1.0 0.811 0.151 1.0"/>
@@ -268,7 +268,7 @@
   <visual name="front_right_wheel">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
     </geometry>
     <material name="WheelBlack">
       <color rgba="0.117 0.117 0.117 1"/>
@@ -308,7 +308,7 @@
   <visual name="back_left_axle">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
     </geometry>
     <material name="AxleGrey">
       <color rgba="0.5 0.5 0.5 1"/>
@@ -339,7 +339,7 @@
   <visual name="back_left_hub">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/left_hubcap.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/left_hubcap.dae"/>
     </geometry>
     <material name="HubcapYellow">
       <color rgba="1.0 0.811 0.151 1.0"/>
@@ -370,7 +370,7 @@
   <visual name="back_left_wheel">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
     </geometry>
     <material name="WheelBlack">
       <color rgba="0.117 0.117 0.117 1"/>
@@ -410,7 +410,7 @@
   <visual name="back_right_axle">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/axle.dae"/>
     </geometry>
     <material name="AxleGrey">
       <color rgba="0.5 0.5 0.5 1"/>
@@ -441,7 +441,7 @@
   <visual name="back_right_hub">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/right_hubcap.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/right_hubcap.dae"/>
     </geometry>
     <material name="HubcapYellow">
       <color rgba="1.0 0.811 0.151 1.0"/>
@@ -472,7 +472,7 @@
   <visual name="back_right_wheel">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <geometry name="pioneer_geom">
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/p3at_meshes/wheel.dae"/>
     </geometry>
     <material name="WheelBlack">
       <color rgba="0.117 0.117 0.117 1"/>
@@ -505,11 +505,11 @@
   <!-- lidar -->
 <joint name="laser_joint" type="fixed">
   <parent link="chassis" />
-  <child link="laser_frame" />
+  <child link="laser" />
   <origin xyz="0.2 0 0.104" rpy="0 0 0"/>
 </joint>
 
-<link name="laser_frame">
+<link name="laser">
   <collision>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
@@ -519,7 +519,7 @@
   <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/> 
     <geometry>
-      <mesh filename="/home/winton/ros2_ws/src/pioneer_robot/resources/meshes/hokuyo1.dae"/>
+      <mesh filename="/home/winton/ros2_ws_part3/src/pioneer_robot/resources/meshes/hokuyo1.dae"/>
     </geometry>
   </visual>
   <inertial>
@@ -529,18 +529,18 @@
   </inertial>
 </link>
 
-<gazebo reference="laser_frame">
+<gazebo reference="laser">
   <sensor name="laser" type="gpu_lidar">
     <topic>scan</topic>
     <update_rate>10</update_rate>
-    <frame>laser_frame</frame>
-    <gz_frame_id>laser_frame</gz_frame_id>
+    <frame>laser</frame>
+    <gz_frame_id>laser</gz_frame_id>
     <lidar>
       <scan>
         <horizontal>
-          <samples>640</samples>
-          <min_angle>-1.5708</min_angle>
-          <max_angle>1.5708</max_angle>
+          <samples>540</samples>
+          <min_angle>-2.35619</min_angle>
+          <max_angle>2.35619</max_angle>
         </horizontal>
       </scan>
       <range>
@@ -590,7 +590,7 @@
     <always_on>true</always_on>
     <update_rate>30</update_rate>
     <visualize>true</visualize>
-    <topic>camera/image</topic>
+    <topic>oak/rgb/image_raw</topic>
     <frame>cam_optical_link</frame>
     <camera>
       <horizontal_fov>1.089</horizontal_fov>

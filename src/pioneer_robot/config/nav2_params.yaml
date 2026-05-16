@@ -40,7 +40,7 @@ controller_server:
     #picks a point on the path infront (dist = lookahead dist) then drives towards it
     #slows down for turning or if its near an obstacle
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController" 
-      desired_linear_vel: 0.5
+      desired_linear_vel: 0.7
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
@@ -116,11 +116,14 @@ global_costmap:
       use_sim_time: false
       robot_radius: 0.3
       resolution: 0.05
-      track_unknown_space: true
-      #static layer, loads slam map
-      #obstacle layer, loads lidar readings for obstacles that are 'new'
-      #inflation layer is like a buffer, makes obstacles bigger so the robot defs dont hit anything
-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      # Fixed 15x15 m costmap centred on the arena — no static layer so the
+      # size never depends on SLAM map coverage. SLAM still runs for localisation.
+      width: 14
+      height: 14
+      origin_x: -7.0
+      origin_y: -7.0
+      track_unknown_space: false   # treat unmapped areas as free so planner can reach anywhere
+      plugins: ["obstacle_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -131,13 +134,10 @@ global_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 8.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 7.0
           obstacle_min_range: 0.0
-      static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: true
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
@@ -166,11 +166,18 @@ planner_server:
     use_sim_time: false
     planners:
       - name: GridBased
-        type: nav2_navfn_planner/NavfnPlanner
+        type: nav2_smac_planner/SmacPlanner2D
     GridBased:
-      use_astar: false #using dijkstra alg
-      allow_unknown: true #map thru unknown areas 
-      tolerance: 0.5 #had issues with slam map 'moving' allowing a tolerance allowed robot to continue
+      allow_unknown: true
+      tolerance: 0.5
+      downsample_costmap: false
+      downsampling_factor: 1
+      use_final_approach_orientation: false
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
 
 smoother_server:
   ros__parameters:
@@ -225,8 +232,8 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: false
     feedback: "OPEN_LOOP"
-    max_velocity: [0.5, 0.0, 1.0]
-    min_velocity: [-0.5, 0.0, -1.0]
+    max_velocity: [0.7, 0.0, 1.0]
+    min_velocity: [-0.7, 0.0, -1.0]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
     odom_topic: "odom"

@@ -13,10 +13,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'resources', 'launch'),
-            glob('resources/launch/*.py')),
         (os.path.join('share', package_name, 'resources', 'worlds'),
-            glob('resources/worlds/*.sdf')),
+            glob('resources/worlds/*.sdf') + glob('resources/worlds/*.png')),
         (os.path.join('share', package_name, 'resources', 'robots'),
             glob('resources/robots/*.urdf')),
         (os.path.join('share', package_name, 'resources', 'meshes'),
@@ -25,8 +23,8 @@ setup(
             [f for f in glob('resources/meshes/p3at_meshes/*') if os.path.isfile(f)]),
         (os.path.join('share', package_name, 'config'),
             glob('config/*.yaml')),
-        (os.path.join('share', package_name, 'config'),
-            glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'resources', 'rviz'),
+            glob('resources/rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -42,8 +40,8 @@ setup(
     #ros2 run pioneer_robot waypoint_follower
     entry_points={
         'console_scripts': [
-            'waypoint_follower = pioneer_robot.waypoint_follower:main',
-            'gps_waypoint_follower = pioneer_robot.gps_waypoint_follower:main',
+            'explorer    = pioneer_robot.explorer:main',
+            'perception  = pioneer_robot.perception_node:main',
         ],
     },
 )

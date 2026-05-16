@@ -43,7 +43,7 @@ ros2 launch slam_toolbox online_async_launch.py &
 sleep 15
 
 #Nav2
-ros2 launch /src/pioneer_robot/resources/launch/navigation_launch.py \
+ros2 launch $(pwd)/src/pioneer_robot/resources/launch/navigation_launch.py \
     params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \
     use_sim_time:=false &
 

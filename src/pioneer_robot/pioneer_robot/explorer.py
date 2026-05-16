@@ -7,8 +7,6 @@ from nav2_msgs.action import NavigateToPose
 from action_msgs.msg import GoalStatus
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
-from rcl_interfaces.srv import SetParameters
-from rcl_interfaces.msg import Parameter as RclParam, ParameterValue, ParameterType
 import tf2_ros
 
 # ── Arena / sweep config ──────────────────────────────────────────────────────
@@ -37,11 +35,6 @@ CIRCLE_RADIUS    = 1.8
 CIRCLE_N         = 8
 CIRCLE_DWELL     = 2.0   # seconds to stop and scan at each circle waypoint
 
-# ── Speed ─────────────────────────────────────────────────────────────────────
-EXPLORE_SPEED    = 0.7
-CIRCLE_SPEED     = 0.3   # slow transit between circle waypoints for stable camera
-WAYPOINT_SPEED   = 1.4
-
 # ── Retry limits ─────────────────────────────────────────────────────────────
 MAX_SWEEP_RETRIES  = 20
 MAX_CIRCLE_RETRIES = 3
@@ -68,10 +61,6 @@ class FrontierExplorer(Node):
 
         self._status_pub   = self.create_publisher(String, '/explore/status', 10)
         self._trigger_pub  = self.create_publisher(String, '/perception/trigger', 10)
-        self._ctrl_params  = self.create_client(
-            SetParameters, '/controller_server/set_parameters')
-        self._smoother_params = self.create_client(
-            SetParameters, '/velocity_smoother/set_parameters')
 
         self.create_subscription(LaserScan, '/scan',
                                  lambda m: setattr(self, '_latest_scan', m), 10)
@@ -256,7 +245,6 @@ class FrontierExplorer(Node):
                 self.get_logger().info('[VISIT] circle complete')
                 self._circle_wps = []
                 self._circle_idx = 0
-                self._set_nav_speed(EXPLORE_SPEED)
 
         elif self._visit_queue:
             ox, oy = self._visit_queue.pop(0)
@@ -267,7 +255,6 @@ class FrontierExplorer(Node):
             self._arrived_at_circle  = False
             self.get_logger().info(f'[VISIT] circling object at ({ox:.1f}, {oy:.1f})')
             self._pub_status(f'VISITING {ox:.1f} {oy:.1f}')
-            self._set_nav_speed(CIRCLE_SPEED)
             self._circle_wps   = self._gen_circle(ox, oy)
             self._circle_idx   = 0
             self._circle_fails = 0
@@ -301,7 +288,6 @@ class FrontierExplorer(Node):
         n = len(self._marker_wps)
         self.get_logger().info(
             f'[WAYPOINT] starting fast run to {n} markers')
-        self._set_nav_speed(WAYPOINT_SPEED)
         self._waypoint_queue = [(x, y) for _, x, y in self._marker_wps]
         self._sort_wps_nn(0.0, 0.0)
         self._last_goal_ok = True
@@ -320,7 +306,6 @@ class FrontierExplorer(Node):
         else:
             self.get_logger().info('[DONE] waypoint run complete')
             self._pub_status('DONE')
-            self._set_nav_speed(EXPLORE_SPEED)
             self._state = self.DONE
 
     # ── Nearest-neighbour ordering ────────────────────────────────────────────
@@ -351,29 +336,6 @@ class FrontierExplorer(Node):
             remaining.remove(nearest)
             cx, cy = nearest
         return ordered
-
-    # ── Speed control ─────────────────────────────────────────────────────────
-
-    def _set_nav_speed(self, vel: float):
-        if self._ctrl_params.service_is_ready():
-            req = SetParameters.Request()
-            p = RclParam()
-            p.name = 'FollowPath.desired_linear_vel'
-            p.value.type = ParameterType.PARAMETER_DOUBLE
-            p.value.double_value = float(vel)
-            req.parameters = [p]
-            self._ctrl_params.call_async(req)
-
-        if self._smoother_params.service_is_ready():
-            req2 = SetParameters.Request()
-            p2 = RclParam()
-            p2.name = 'max_velocity'
-            p2.value.type = ParameterType.PARAMETER_DOUBLE_ARRAY
-            p2.value.double_array_value = [float(vel), 0.0, 1.0]
-            req2.parameters = [p2]
-            self._smoother_params.call_async(req2)
-
-        self.get_logger().info(f'[SPEED] set to {vel} m/s')
 
     # ── Scan-based object detection ───────────────────────────────────────────
 

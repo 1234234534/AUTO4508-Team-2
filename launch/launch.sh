@@ -40,6 +40,8 @@ ros2 run main_drive_package odom_node &
 #SLAM
 ros2 launch slam_toolbox online_async_launch.py &
 
+sleep 15
+
 #Nav2
 ros2 launch nav2_bringup navigation_launch.py \
     params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \

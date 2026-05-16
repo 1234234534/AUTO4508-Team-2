@@ -26,7 +26,7 @@ ros2 launch phidgets_spatial spatial-launch.py &
 ros2 launch lakibeam1 lakibeam1_scan.launch.py --ros-args --log-level fatal &
 
 #TF Tree Static Transformations
-ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_footprint base_link &
+#ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_footprint base_link &
 ros2 run tf2_ros static_transform_publisher 0.2 0 0 0 0 0 base_link oak-d-base-frame &
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
 
@@ -38,7 +38,7 @@ ros2 run main_drive_package odom_node &
 #ros2 run main_drive_package pointandshoot_node &
 
 #SLAM
-ros2 launch slam_toolbox online_async_launch.py &
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pioneer_robot/config/slam_params.yaml &
 
 sleep 15
 

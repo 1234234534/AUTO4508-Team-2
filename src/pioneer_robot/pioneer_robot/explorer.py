@@ -429,6 +429,7 @@ class FrontierExplorer(Node):
     def _send_goal(self, x, y, yaw=None):
         if not self._nav.wait_for_server(timeout_sec=0.0):
             self.get_logger().warn('Nav2 not ready', throttle_duration_sec=5.0)
+            self._goal_active = True
             return
 
         goal = NavigateToPose.Goal()

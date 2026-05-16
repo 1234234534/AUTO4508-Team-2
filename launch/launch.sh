@@ -39,21 +39,20 @@ ros2 run main_drive_package odom_node &
 
 #SLAM
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pioneer_robot/config/slam_params.yaml &
-
-sleep 15
-
-#Nav2
-ros2 launch $(pwd)/src/pioneer_robot/resources/launch/navigation_launch.py \
-    params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \
-    use_sim_time:=false &
-
-sleep 15
-
-ros2 run pioneer_robot explorer &
-ros2 run pioneer_robot perception & 
-
 #rviz2
 rviz2 -d rviz2_config.rviz &
+
+#sleep 15
+
+#Nav2
+#ros2 launch $(pwd)/src/pioneer_robot/resources/launch/navigation_launch.py \
+#    params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \
+#    use_sim_time:=false &
+
+#sleep 15
+
+#ros2 run pioneer_robot explorer &
+#ros2 run pioneer_robot perception & 
 
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &

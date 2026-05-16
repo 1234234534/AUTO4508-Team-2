@@ -128,11 +128,11 @@ class PerceptionNode(Node):
 
         red_mask   = (cv2.inRange(hsv, RED_LO1, RED_HI1) |
                       cv2.inRange(hsv, RED_LO2, RED_HI2))
-        green_mask = cv2.inRange(hsv, GREEN_LO, GREEN_HI)
+        #green_mask = cv2.inRange(hsv, GREEN_LO, GREEN_HI)
         blue_mask  = cv2.inRange(hsv, BLUE_LO,  BLUE_HI)
 
         r_px = cv2.countNonZero(red_mask)
-        g_px = cv2.countNonZero(green_mask)
+        #g_px = cv2.countNonZero(green_mask)
         b_px = cv2.countNonZero(blue_mask)
         self.get_logger().info(
             f'[Perception] px — red:{r_px} green:{g_px} blue:{b_px} '
@@ -140,7 +140,7 @@ class PerceptionNode(Node):
             throttle_duration_sec=0.5)
 
         for mask, label, px in [(red_mask, 'red', r_px),
-                                 (green_mask, 'green', g_px),
+                                 #(green_mask, 'green', g_px),
                                  (blue_mask, 'blue', b_px)]:
             if px >= MIN_PIXELS:
                 self._votes[label] = self._votes.get(label, 0) + 1

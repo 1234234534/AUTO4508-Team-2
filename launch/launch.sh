@@ -23,7 +23,7 @@ ros2 launch depthai_ros_driver camera.launch.py device_id:=19443010C11F481300 &
 #ros2 run nmea_navsat_driver nmea_serial_driver --ros-args -p port:=/dev/ttyACM0 -r fix:=/gps/fix &
 ros2 launch phidgets_spatial spatial-launch.py &
 #ip addr add 192.168.198.1/24 dev enp89s0 2>/dev/null || true
-ros2 launch lakibeam1 lakibeam1_scan.launch.py &
+ros2 launch lakibeam1 lakibeam1_scan.launch.py --ros-args --log-level fatal &
 
 #TF Tree Static Transformations
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_footprint base_link &

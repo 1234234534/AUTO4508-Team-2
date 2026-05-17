@@ -26,7 +26,7 @@ class JoyImageCapture(Node):
     def joy_callback(self, msg):
         triangle_pressed = msg.buttons[3]  # PS4 triangle
 
-        if triangle_pressed == 1 AND self.last_button_state == 0:
+        if triangle_pressed == 1 and self.last_button_state == 0:
             self.get_logger().info("Triangle Button Pressed")
             self.save_image()
 

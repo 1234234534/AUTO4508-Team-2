@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     zathura \
     python3-opencv \
     ros-jazzy-cv-bridge \
+    feh \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

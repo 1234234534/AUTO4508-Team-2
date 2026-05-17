@@ -17,7 +17,7 @@ docker run -d --name JASON \
     -v /dev:/dev \
     -v /sys:/sys \
     -v /run/udev:/run/udev \
-    -v "/media/team2/UBUNTU 24_0":/images \
+    -v "/media/team2/UBUNTU 24_01":/images \
     team2-dockerimage tail -f /dev/null \
     
 docker cp . JASON:/workspace \

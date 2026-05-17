@@ -34,15 +34,14 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
 ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
 ros2 run main_drive_package odom_node &
+ros2 run main_drive_package take_image_node &
 
 #ros2 run main_drive_package pointandshoot_node &
 
 #SLAM
-ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pioneer_robot/config/slam_params.yaml &
+#ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pioneer_robot/config/slam_params.yaml &
 #rviz2
-rviz2 -d rviz2_config.rviz &
-
-ros2 run main_drive_package take_image_node.py &
+#rviz2 -d rviz2_config.rviz &
 
 #sleep 15
 
@@ -57,6 +56,6 @@ ros2 run main_drive_package take_image_node.py &
 #ros2 run pioneer_robot perception & 
 
 # Record Journey
-ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &
+#ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &
 
 wait

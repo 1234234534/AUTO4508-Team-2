@@ -15,19 +15,8 @@ class JoyImageCapture(Node):
         self.latest_image = None
         self.last_button_state = 0
 
-        self.image_sub = self.create_subscription(
-            Image,
-            '/oak/rgb/image_raw',
-            self.image_callback,
-            10
-        )
-
-        self.joy_sub = self.create_subscription(
-            Joy,
-            '/joy',
-            self.joy_callback,
-            10
-        )
+        self.image_sub = self.create_subscription(Image, '/oak/rgb/image_raw', self.image_callback, 10)
+        self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback, 10)
 
         self.get_logger().info("Ready: press TRIANGLE to capture image")
 
@@ -35,21 +24,15 @@ class JoyImageCapture(Node):
         self.latest_image = msg
 
     def joy_callback(self, msg):
-        if len(msg.buttons) < 3:
-            return
-
         triangle_pressed = msg.buttons[3]  # PS4 triangle
 
-        # Trigger only on rising edge (0 -> 1)
-        if triangle_pressed == 1 and self.last_button_state == 0:
+        if triangle_pressed == 1:
             self.get_logger().info("Triangle Button Pressed")
             self.save_image()
 
-        self.last_button_state = triangle_pressed
-
     def save_image(self):
         if self.latest_image is None:
-            self.get_logger().warn("No image received yet")
+            self.get_logger().info("No image received yet")
             return
 
         img = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')

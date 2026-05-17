@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Joy, Image
 from cv_bridge import CvBridge
 import cv2
+import os
 
 
 class JoyImageCapture(Node):
@@ -39,7 +40,11 @@ class JoyImageCapture(Node):
 
         img = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')
 
-        filename = f"oak_capture_{self.get_clock().now().to_msg().sec}.png"
+        filename = os.path.join(
+            "/images/images",
+            f"oak_capture_{self.get_clock().now().to_msg().sec}.png"
+        )
+        
         cv2.imwrite(filename, img)
 
         self.get_logger().info(f"Saved {filename}")

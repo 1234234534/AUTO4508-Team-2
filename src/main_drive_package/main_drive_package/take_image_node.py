@@ -38,10 +38,11 @@ class JoyImageCapture(Node):
         if len(msg.buttons) < 3:
             return
 
-        triangle_pressed = msg.buttons[2]  # PS4 triangle
+        triangle_pressed = msg.buttons[3]  # PS4 triangle
 
         # Trigger only on rising edge (0 -> 1)
         if triangle_pressed == 1 and self.last_button_state == 0:
+            self.get_logger().info("Triangle Button Pressed")
             self.save_image()
 
         self.last_button_state = triangle_pressed

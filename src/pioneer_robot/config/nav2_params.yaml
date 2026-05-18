@@ -40,12 +40,12 @@ controller_server:
     #picks a point on the path infront (dist = lookahead dist) then drives towards it
     #slows down for turning or if its near an obstacle
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController" 
-      desired_linear_vel: 0.7
+      desired_linear_vel: 0.4
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
       lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 1.8
+      rotate_to_heading_angular_vel: 0.5
       transform_tolerance: 0.1
       use_velocity_scaled_lookahead_dist: false
       min_approach_linear_velocity: 0.05
@@ -60,7 +60,7 @@ controller_server:
       use_rotate_to_heading: true
       allow_reversing: false
       rotate_to_heading_min_angle: 0.785
-      max_angular_accel: 3.2
+      max_angular_accel: 0.8
       max_robot_pose_search_dist: 10.0
 
 local_costmap:
@@ -116,14 +116,12 @@ global_costmap:
       use_sim_time: false
       robot_radius: 0.3
       resolution: 0.05
-      # Fixed 15x15 m costmap centred on the arena — no static layer so the
-      # size never depends on SLAM map coverage. SLAM still runs for localisation.
       width: 14
       height: 14
       origin_x: -7.0
       origin_y: -7.0
-      track_unknown_space: false   # treat unmapped areas as free so planner can reach anywhere
-      plugins: ["obstacle_layer", "inflation_layer"]
+      track_unknown_space: false
+      plugins: ["obstacle_layer", "static_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -134,14 +132,20 @@ global_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 8.0
+          observation_persistence: 10.0
+          raytrace_max_range: 6.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 7.0
+          obstacle_max_range: 5.0
           obstacle_min_range: 0.0
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: false
+        map_subscribe_transient_local: true
+        map_topic: /merged_costmap
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.45
       always_send_full_costmap: true
 
 map_server:
@@ -211,8 +215,8 @@ behavior_server:
     transform_tolerance: 0.1
     use_sim_time: false
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.0
-    min_rotational_vel: 0.4
+    max_rotational_vel: 0.5
+    min_rotational_vel: 0.2
     rotational_acc_lim: 3.2
 
 waypoint_follower:
@@ -232,8 +236,8 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: false
     feedback: "OPEN_LOOP"
-    max_velocity: [0.7, 0.0, 1.0]
-    min_velocity: [-0.7, 0.0, -1.0]
+    max_velocity: [0.4, 0.0, 1.0]
+    min_velocity: [-0.4, 0.0, -1.0]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
     odom_topic: "odom"
@@ -248,7 +252,7 @@ collision_monitor:
     base_frame_id: "base_link"
     odom_frame_id: "odom"
     cmd_vel_in_topic: "cmd_vel_smoothed"
-    cmd_vel_out_topic: "cmd_vel_nav"
+    cmd_vel_out_topic: "cmd_vel"
     state_topic: "collision_monitor_state"
     transform_tolerance: 0.2
     source_timeout: 1.0

@@ -1,18 +1,23 @@
 import json
 import math
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from nav2_msgs.action import NavigateToPose
 from action_msgs.msg import GoalStatus
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import String
+from rcl_interfaces.srv import SetParameters
+from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
 
 # ── Arena / sweep config ──────────────────────────────────────────────────────
 ARENA_HALF       = 7.5
 WALL_MARGIN      = 1.2
-SWEEP_X          = [-6.0, 0.0, 6.0]
+SWEEP_X          = [-6.0, -3.0, 0.0, 3.0, 6.0]
 SWEEP_Y_LO       = -(ARENA_HALF - WALL_MARGIN)
 SWEEP_Y_HI       =  (ARENA_HALF - WALL_MARGIN)
 
@@ -26,13 +31,12 @@ RETURN_WAIT      = 10.0   # seconds to wait at origin before waypoint run
 # ── Object detection ──────────────────────────────────────────────────────────
 MIN_CLUSTER_PTS   = 5
 MIN_CLUSTER_SPAN  = 0.25   # m — min bounding-box span; filters trees (~10cm) and cones (~12cm)
-CLUSTER_DEPTH_EST = 0.25   # m — half box depth; pushes bounding-box face centre to true centre
 CLUSTER_RADIUS    = 0.6
 MERGE_DIST        = 2.0
 
 # ── Circling ──────────────────────────────────────────────────────────────────
-CIRCLE_RADIUS    = 1.8
-CIRCLE_N         = 8
+CIRCLE_RADIUS    = 1.2
+CIRCLE_N         = 3
 CIRCLE_DWELL     = 2.0   # seconds to stop and scan at each circle waypoint
 
 # ── Retry limits ─────────────────────────────────────────────────────────────
@@ -61,6 +65,24 @@ class FrontierExplorer(Node):
 
         self._status_pub   = self.create_publisher(String, '/explore/status', 10)
         self._trigger_pub  = self.create_publisher(String, '/perception/trigger', 10)
+        self._costmap_params = self.create_client(
+            SetParameters, '/global_costmap/global_costmap/set_parameters')
+        self._costmap_frozen = False
+
+        _transient = QoSProfile(
+            depth=1,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE)
+        self._latest_slam_map = None
+        self._latest_costmap  = None
+        self._merged_pub = self.create_publisher(
+            OccupancyGrid, '/merged_costmap', _transient)
+        self.create_subscription(OccupancyGrid, '/map',
+                                 lambda m: setattr(self, '_latest_slam_map', m),
+                                 _transient)
+        self.create_subscription(OccupancyGrid, '/global_costmap/costmap',
+                                 lambda m: setattr(self, '_latest_costmap', m),
+                                 _transient)
 
         self.create_subscription(LaserScan, '/scan',
                                  lambda m: setattr(self, '_latest_scan', m), 10)
@@ -193,8 +215,8 @@ class FrontierExplorer(Node):
                 f'[SWEEP] WP {self._sweep_idx}/{len(self._sweep_wps)}: ({x}, {y})')
             self._send_goal(x, y)
         else:
-            n = len(self._visit_queue)
-            self.get_logger().info(f'[SWEEP] done — {n} objects queued')
+            self.get_logger().info(f'[SWEEP] done — building visit queue from merged costmap')
+            self._freeze_global_costmap()
             self._sort_queue_nn()
             self._state = self.VISITING
 
@@ -337,6 +359,110 @@ class FrontierExplorer(Node):
             cx, cy = nearest
         return ordered
 
+    # ── Costmap freeze + merge ────────────────────────────────────────────────
+
+    def _freeze_global_costmap(self):
+        if self._costmap_frozen:
+            return
+        if not self._costmap_params.service_is_ready():
+            self.get_logger().warn('[COSTMAP] freeze service not ready — skipping')
+            return
+        self._merge_and_publish()
+        req = SetParameters.Request()
+        req.parameters = [
+            Parameter(name='obstacle_layer.enabled',
+                      value=ParameterValue(type=ParameterType.PARAMETER_BOOL,
+                                           bool_value=False)),
+            Parameter(name='static_layer.enabled',
+                      value=ParameterValue(type=ParameterType.PARAMETER_BOOL,
+                                           bool_value=True)),
+        ]
+        self._costmap_params.call_async(req)
+        self._costmap_frozen = True
+        self.get_logger().info('[COSTMAP] merged map published, switched to static layer')
+
+    def _merge_and_publish(self):
+        costmap = self._latest_costmap
+        slam    = self._latest_slam_map
+        if costmap is None:
+            self.get_logger().warn('[MERGE] no costmap — skipping')
+            return
+
+        info = costmap.info
+        w, h = info.width, info.height
+
+        # Start from costmap lethal cells only (discard cost gradients)
+        cm = np.array(costmap.data, dtype=np.int8).reshape((h, w))
+        merged = np.where(cm == 100, np.int8(100), np.int8(0))
+
+        if slam is not None:
+            si     = slam.info
+            sw, sh = si.width, si.height
+            sm     = np.array(slam.data, dtype=np.int8).reshape((sh, sw))
+
+            ratio  = si.resolution / info.resolution
+            ox_off = (si.origin.position.x - info.origin.position.x) / info.resolution
+            oy_off = (si.origin.position.y - info.origin.position.y) / info.resolution
+
+            cols = np.arange(w)
+            rows = np.arange(h)
+            sc   = np.clip(np.floor((cols - ox_off) * ratio).astype(int), 0, sw - 1)
+            sr   = np.clip(np.floor((rows - oy_off) * ratio).astype(int), 0, sh - 1)
+
+            slam_overlay = sm[np.ix_(sr, sc)]
+            merged = np.where(slam_overlay == 100, np.int8(100), merged)
+            self.get_logger().info('[MERGE] SLAM obstacles merged in')
+        else:
+            self.get_logger().warn('[MERGE] no SLAM map — using costmap only')
+
+        out = OccupancyGrid()
+        out.header.stamp    = self.get_clock().now().to_msg()
+        out.header.frame_id = 'map'
+        out.info            = info
+        out.data            = merged.flatten().tolist()
+        self._merged_pub.publish(out)
+        self.get_logger().info(f'[MERGE] published /merged_costmap ({w}x{h})')
+        self._extract_objects_from_costmap(merged, info)
+
+    def _extract_objects_from_costmap(self, merged, info):
+        import cv2 as _cv2
+        binary = np.uint8(merged == 100) * 255
+        n, _, stats, centroids = _cv2.connectedComponentsWithStats(binary, connectivity=8)
+
+        objects = []
+        for i in range(1, n):
+            area   = int(stats[i, _cv2.CC_STAT_AREA])
+            bw     = int(stats[i, _cv2.CC_STAT_WIDTH])
+            bh     = int(stats[i, _cv2.CC_STAT_HEIGHT])
+            aspect = max(bw, bh) / max(min(bw, bh), 1)
+
+            if area < 10 or area > 600:
+                continue
+            if aspect > 5.0:
+                continue
+
+            cx_cell = centroids[i][0]
+            cy_cell = centroids[i][1]
+            wx = info.origin.position.x + cx_cell * info.resolution
+            wy = info.origin.position.y + cy_cell * info.resolution
+
+            if abs(wx) > ARENA_HALF - WALL_MARGIN or abs(wy) > ARENA_HALF - WALL_MARGIN:
+                continue
+
+            objects.append((wx, wy))
+
+        if not objects:
+            self.get_logger().warn(
+                f'[MERGE] no objects found in merged costmap — '
+                f'falling back to {len(self._visit_queue)} LiDAR detections')
+            return
+
+        self._visit_queue = objects
+        self._visited     = []
+        self.get_logger().info(
+            f'[MERGE] visit queue replaced with {len(objects)} costmap centroids: '
+            f'{[(round(x,1), round(y,1)) for x, y in objects]}')
+
     # ── Scan-based object detection ───────────────────────────────────────────
 
     def _detect_objects(self):
@@ -365,13 +491,13 @@ class FrontierExplorer(Node):
                     pts.append((wx, wy))
             ang += scan.angle_increment
 
-        for cx, cy in self._cluster(pts, rx, ry):
+        for cx, cy in self._cluster(pts):
             if self._is_new(cx, cy):
                 self._visit_queue.append((cx, cy))
                 self.get_logger().info(
                     f'[DETECT] new object queued at ({cx:.1f}, {cy:.1f})')
 
-    def _cluster(self, pts, rx, ry):
+    def _cluster(self, pts):
         used = [False] * len(pts)
         out  = []
         for i, (px, py) in enumerate(pts):
@@ -391,15 +517,8 @@ class FrontierExplorer(Node):
                 span = max(max(xs) - min(xs), max(ys) - min(ys))
                 if span < MIN_CLUSTER_SPAN:
                     continue
-                # bounding-box centre is more stable than point-cloud mean
                 cx = (max(xs) + min(xs)) / 2.0
                 cy = (max(ys) + min(ys)) / 2.0
-                # LiDAR only sees the near face — push centroid toward true centre
-                dx, dy = cx - rx, cy - ry
-                d = math.hypot(dx, dy)
-                if d > 0:
-                    cx += (dx / d) * CLUSTER_DEPTH_EST
-                    cy += (dy / d) * CLUSTER_DEPTH_EST
                 out.append((cx, cy))
         return out
 
@@ -412,12 +531,13 @@ class FrontierExplorer(Node):
     # ── Circle generation ─────────────────────────────────────────────────────
 
     def _gen_circle(self, ox, oy):
-        rx, ry, _ = self._robot_pose()
-        start = math.atan2((ry or 0.0) - oy, (rx or 0.0) - ox)
-        inner = ARENA_HALF - WALL_MARGIN
-        wps   = []
+        # 180-degree arc on the side of the object facing the arena centre (0,0)
+        # All signs face inward so this covers the sign face for every object
+        inner      = ARENA_HALF - WALL_MARGIN
+        to_centre  = math.atan2(-oy, -ox)   # direction from object toward (0,0)
+        wps        = []
         for i in range(CIRCLE_N):
-            ang = start + 2.0 * math.pi * i / CIRCLE_N
+            ang = to_centre - math.radians(50) + math.radians(100) * i / (CIRCLE_N - 1)
             wx  = max(-inner, min(inner, ox + CIRCLE_RADIUS * math.cos(ang)))
             wy  = max(-inner, min(inner, oy + CIRCLE_RADIUS * math.sin(ang)))
             yaw = math.atan2(oy - wy, ox - wx)
@@ -429,7 +549,6 @@ class FrontierExplorer(Node):
     def _send_goal(self, x, y, yaw=None):
         if not self._nav.wait_for_server(timeout_sec=0.0):
             self.get_logger().warn('Nav2 not ready', throttle_duration_sec=5.0)
-            self._goal_active = True
             return
 
         goal = NavigateToPose.Goal()

@@ -43,14 +43,14 @@ ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pio
 #rviz2 -d rviz2_config.rviz &
 ros2 run foxglove_bridge foxglove_bridge &
 
-sleep 15
+sleep 5
 
 #Nav2
 ros2 launch $(pwd)/src/pioneer_robot/resources/launch/navigation_launch.py \
     params_file:=$(pwd)/src/pioneer_robot/config/nav2_params.yaml \
     use_sim_time:=false &
 
-sleep 15
+sleep 5
 
 ros2 run pioneer_robot explorer &
 ros2 run pioneer_robot perception & 

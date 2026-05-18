@@ -22,10 +22,10 @@ SWEEP_Y_LO       = -(ARENA_HALF - WALL_MARGIN)
 SWEEP_Y_HI       =  (ARENA_HALF - WALL_MARGIN)
 
 # ── Timing ────────────────────────────────────────────────────────────────────
-STARTUP_DELAY    = 10.0
+STARTUP_DELAY    = 5.0
 TICK_HZ          = 0.5
 CLUSTER_PERIOD   = 2.0
-GOAL_TIMEOUT     = 40.0
+GOAL_TIMEOUT     = 100.0
 RETURN_WAIT      = 10.0   # seconds to wait at origin before waypoint run
 
 # ── Object detection ──────────────────────────────────────────────────────────

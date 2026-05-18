@@ -40,7 +40,7 @@ CIRCLE_N         = 3
 CIRCLE_DWELL     = 2.0   # seconds to stop and scan at each circle waypoint
 
 # ── Retry limits ─────────────────────────────────────────────────────────────
-MAX_SWEEP_RETRIES  = 20
+MAX_SWEEP_RETRIES  = 50
 MAX_CIRCLE_RETRIES = 3
 
 

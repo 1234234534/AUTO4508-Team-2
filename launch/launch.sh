@@ -40,7 +40,8 @@ ros2 run main_drive_package odom_node &
 #SLAM
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=$(pwd)/src/pioneer_robot/config/slam_params.yaml &
 #rviz2
-rviz2 -d rviz2_config.rviz &
+#rviz2 -d rviz2_config.rviz &
+ros2 run foxglove_bridge foxglove_bridge &
 
 sleep 15
 

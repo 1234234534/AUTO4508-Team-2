@@ -30,6 +30,10 @@ RUN apt-get update && apt-get install -y \
     nmap \
     ros-jazzy-rviz2 \
     zathura \
+    python3-opencv \
+    ros-jazzy-cv-bridge \
+    feh \
+    ros-jazzy-foxglove-bridge \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

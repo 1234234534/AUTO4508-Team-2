@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y \
     python3-numpy \
     python3-sklearn \
     python3-skimage \
-    python3- joblib \
+    python3-joblib \
     && rm -rf /var/lib/apt/lists/*
 
 # Install depthai

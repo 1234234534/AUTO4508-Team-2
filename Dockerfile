@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y \
     python3-sklearn \
     python3-skimage \
     python3-joblib \
+    ros-jazzy-rosbridge-suite \
     && rm -rf /var/lib/apt/lists/*
     
 

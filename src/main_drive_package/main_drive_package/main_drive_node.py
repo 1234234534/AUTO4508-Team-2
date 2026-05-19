@@ -15,7 +15,7 @@ class MainDriveNode(Node):
         # Subscribe to mode, teleop_cmd_vel, (and nav2_cmd_vel later too)
         self.subscription = self.create_subscription(String, '/mode', self.mode_callback, 10)
         self.subscription2 = self.create_subscription(Twist, '/cmd_vel_teleop', self.teleop_callback, 10)
-        self.subscription3 = self.create_subscription(Twist, '/cmd_vel_nav', self.pointandshoot_callback, 10)
+        self.subscription3 = self.create_subscription(Twist, '/cmd_vel_final', self.pointandshoot_callback, 10)
 
         # Publish to cmd_vel
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)

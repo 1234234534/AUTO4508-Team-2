@@ -45,7 +45,6 @@ def generate_launch_description():
         'smoother_server',
         'planner_server',
         'behavior_server',
-        'velocity_smoother',
         'collision_monitor',
         'bt_navigator',
         'waypoint_follower',
@@ -198,8 +197,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings
-                + [('cmd_vel', 'cmd_vel_nav')],
+                remappings=remappings,
             ),
             Node(
                 package='nav2_collision_monitor',

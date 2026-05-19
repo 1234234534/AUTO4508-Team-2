@@ -28,7 +28,7 @@ ros2 launch lakibeam1 lakibeam1_scan.launch.py &
 #TF Tree Static Transformations
 #ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_footprint base_link &
 ros2 run tf2_ros static_transform_publisher 0.2 0 0 0 0 0 base_link oak-d-base-frame &
-ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser &
+ros2 run tf2_ros static_transform_publisher 0.2 0 0.104 0 0 0 base_link laser &
 
 # Our Nodes
 ros2 run mode_publisher_package mode_publisher_node &
@@ -53,7 +53,8 @@ ros2 launch $(pwd)/src/pioneer_robot/resources/launch/navigation_launch.py \
 sleep 5
 
 ros2 run pioneer_robot explorer &
-ros2 run pioneer_robot perception & 
+ros2 run pioneer_robot perception &
+ros2 run main_drive_package take_image_node &
 
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &

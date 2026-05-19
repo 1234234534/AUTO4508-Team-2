@@ -436,7 +436,7 @@ class FrontierExplorer(Node):
             bh     = int(stats[i, _cv2.CC_STAT_HEIGHT])
             aspect = max(bw, bh) / max(min(bw, bh), 1)
 
-            if area < 10 or area > 600:
+            if area < 50 or area > 600:
                 continue
             if aspect > 5.0:
                 continue

@@ -42,6 +42,8 @@ class PerceptionNode(Node):
         self.create_subscription(Image,  '/oak/rgb/image_raw',    self._image_cb,   10)
         self.create_subscription(String, '/perception/trigger',   self._trigger_cb, 10)
         self._det_pub = self.create_publisher(String, '/detections', 10)
+        self._image_flag = self.create_publisher(int, '/image_flag', 10)
+        self._image_flag_number = 0
 
         os.makedirs(SAVE_DIR, exist_ok=True)
         self._log_path = os.path.join(SAVE_DIR, 'detections.json')

@@ -41,9 +41,9 @@ controller_server:
     #slows down for turning or if its near an obstacle
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       desired_linear_vel: 0.8
-      lookahead_dist: 0.6
-      min_lookahead_dist: 0.3
-      max_lookahead_dist: 0.9
+      lookahead_dist: 1.2
+      min_lookahead_dist: 0.6
+      max_lookahead_dist: 1.8
       lookahead_time: 1.5
       rotate_to_heading_angular_vel: 6.0
       transform_tolerance: 0.1
@@ -60,7 +60,7 @@ controller_server:
       use_rotate_to_heading: true
       allow_reversing: false
       rotate_to_heading_min_angle: 0.785
-      max_angular_accel: 1.0
+      max_angular_accel: 5.0
       max_robot_pose_search_dist: 10.0
 
 local_costmap:

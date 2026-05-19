@@ -59,16 +59,17 @@ def four_point_transform(image, pts):
 
 def imagePreprocess(image):
     
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
-    score = cv2.subtract(v, s)
-    _, mask = cv2.threshold(score, 170, 255, cv2.THRESH_BINARY)
-    
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15,15))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
-
-    return mask
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(gray, 50, 150)
+    kernel = np.ones((5,5), np.uint8)
+    edges = cv2.dilate(edges, kernel, iterations=1)
+    edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    edges = cv2.dilate(edges, kernel, iterations=1)
+    edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    #edges = cv2.dilate(edges, kernel, iterations=1)
+    #edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    return edges
 
 #////////////////////////////////////////////////////////////////////////////////////
 #                     HOG AND SVM

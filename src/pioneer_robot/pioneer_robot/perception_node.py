@@ -24,7 +24,7 @@ DEDUP_DIST  = 3.0    # m — suppress duplicate detections within this radius
 ROI_TOP     = 0.10   # crop top fraction of image (sky / ceiling)
 ROI_BOT     = 0.20   # crop bottom fraction (ground)
 
-SAVE_DIR = os.path.expanduser('~/ros2_ws_part3/detections')
+SAVE_DIR = os.path.expanduser('~/detections')
 
 
 class PerceptionNode(Node):

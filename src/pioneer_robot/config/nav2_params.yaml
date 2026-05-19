@@ -40,12 +40,12 @@ controller_server:
     #picks a point on the path infront (dist = lookahead dist) then drives towards it
     #slows down for turning or if its near an obstacle
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      desired_linear_vel: 0.5
+      desired_linear_vel: 0.65
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
       lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 1.2
+      rotate_to_heading_angular_vel: 1.8
       transform_tolerance: 0.1
       use_velocity_scaled_lookahead_dist: false
       min_approach_linear_velocity: 0.05
@@ -132,7 +132,7 @@ global_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          observation_persistence: 10.0
+          observation_persistence: 2.0
           raytrace_max_range: 6.0
           raytrace_min_range: 0.0
           obstacle_max_range: 5.0
@@ -145,7 +145,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.45
+        inflation_radius: 0.6
       always_send_full_costmap: true
 
 map_server:
@@ -261,7 +261,7 @@ collision_monitor:
     polygons: ["PolygonStop"]
     PolygonStop:
       type: "circle"
-      radius: 0.5
+      radius: 0.4
       action_type: "stop"
       max_points: 3
       visualize: true

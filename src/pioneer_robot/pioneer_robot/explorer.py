@@ -17,7 +17,7 @@ import tf2_ros
 # ── Arena / sweep config ──────────────────────────────────────────────────────
 ARENA_HALF       = 7.5
 WALL_MARGIN      = 1.2
-SWEEP_X          = [-6.0, -3.0, 0.0, 3.0, 6.0]
+SWEEP_X          = [-6.0, 0.0, 6.0]
 SWEEP_Y_LO       = -(ARENA_HALF - WALL_MARGIN)
 SWEEP_Y_HI       =  (ARENA_HALF - WALL_MARGIN)
 

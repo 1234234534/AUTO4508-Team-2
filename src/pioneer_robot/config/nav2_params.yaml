@@ -145,7 +145,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.6
+        inflation_radius: 0.75
       always_send_full_costmap: true
 
 map_server:
@@ -215,9 +215,9 @@ behavior_server:
     transform_tolerance: 0.1
     use_sim_time: false
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.5
-    min_rotational_vel: 0.5
-    rotational_acc_lim: 2.0
+    max_rotational_vel: 2.0
+    min_rotational_vel: 0.8
+    rotational_acc_lim: 2.5
 
 waypoint_follower:
   ros__parameters:
@@ -261,7 +261,7 @@ collision_monitor:
     polygons: ["PolygonStop"]
     PolygonStop:
       type: "circle"
-      radius: 0.4
+      radius: 0.2
       action_type: "stop"
       max_points: 3
       visualize: true

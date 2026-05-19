@@ -14,10 +14,14 @@ from rcl_interfaces.srv import SetParameters
 from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
 
+# ── Merge map cleaning ───────────────────────────────────────────────────────
+MORPH_KERNEL_SIZE = 7   # px — opening kernel; larger removes bigger specs
+MORPH_ITERATIONS  = 1   # passes of erode+dilate; more = more aggressive
+
 # ── Arena / sweep config ──────────────────────────────────────────────────────
 ARENA_HALF       = 7.5
 WALL_MARGIN      = 1.2
-SWEEP_X          = [-6.0, 0.0, 6.0]
+SWEEP_X          = [6.0, 0.0, -6.0]
 SWEEP_Y_LO       = -(ARENA_HALF - WALL_MARGIN)
 SWEEP_Y_HI       =  (ARENA_HALF - WALL_MARGIN)
 
@@ -133,9 +137,9 @@ class FrontierExplorer(Node):
         wps = []
         for i, x in enumerate(SWEEP_X):
             if i % 2 == 0:
-                wps += [(x, SWEEP_Y_LO), (x, SWEEP_Y_HI)]
-            else:
                 wps += [(x, SWEEP_Y_HI), (x, SWEEP_Y_LO)]
+            else:
+                wps += [(x, SWEEP_Y_LO), (x, SWEEP_Y_HI)]
         return wps
 
     # ── Startup ───────────────────────────────────────────────────────────────
@@ -395,10 +399,24 @@ class FrontierExplorer(Node):
         cm = np.array(costmap.data, dtype=np.int8).reshape((h, w))
         merged = np.where(cm == 100, np.int8(100), np.int8(0))
 
+        import cv2 as _cv2
+        import os as _os
+        save_dir = _os.path.expanduser('~/detections')
+        _os.makedirs(save_dir, exist_ok=True)
+
         if slam is not None:
             si     = slam.info
             sw, sh = si.width, si.height
             sm     = np.array(slam.data, dtype=np.int8).reshape((sh, sw))
+
+            # Save raw SLAM map before filtering
+            slam_img = np.uint8(sm == 100) * 255
+            _cv2.imwrite(_os.path.join(save_dir, 'map_1_slam_raw.png'), slam_img)
+
+            # Filter SLAM map before merge
+            kernel      = np.ones((MORPH_KERNEL_SIZE, MORPH_KERNEL_SIZE), np.uint8)
+            slam_clean  = _cv2.morphologyEx(slam_img, _cv2.MORPH_OPEN, kernel, iterations=MORPH_ITERATIONS)
+            _cv2.imwrite(_os.path.join(save_dir, 'map_2_slam_filtered.png'), slam_clean)
 
             ratio  = si.resolution / info.resolution
             ox_off = (si.origin.position.x - info.origin.position.x) / info.resolution
@@ -409,11 +427,17 @@ class FrontierExplorer(Node):
             sc   = np.clip(np.floor((cols - ox_off) * ratio).astype(int), 0, sw - 1)
             sr   = np.clip(np.floor((rows - oy_off) * ratio).astype(int), 0, sh - 1)
 
-            slam_overlay = sm[np.ix_(sr, sc)]
-            merged = np.where(slam_overlay == 100, np.int8(100), merged)
-            self.get_logger().info('[MERGE] SLAM obstacles merged in')
+            slam_overlay = slam_clean[np.ix_(sr, sc)]
+            merged = np.where(slam_overlay == 255, np.int8(100), merged)
+            self.get_logger().info('[MERGE] filtered SLAM merged in')
         else:
             self.get_logger().warn('[MERGE] no SLAM map — using costmap only')
+
+        # Save final merged result
+        merged_img = np.uint8(merged == 100) * 255
+        _cv2.imwrite(_os.path.join(save_dir, 'map_3_merged_final.png'), merged_img)
+        self.get_logger().info(f'[MERGE] maps saved to {save_dir}')
+        self.get_logger().info(f'[MERGE] maps saved to {save_dir}')
 
         out = OccupancyGrid()
         out.header.stamp    = self.get_clock().now().to_msg()

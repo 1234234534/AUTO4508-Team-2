@@ -40,12 +40,12 @@ controller_server:
     #picks a point on the path infront (dist = lookahead dist) then drives towards it
     #slows down for turning or if its near an obstacle
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController" 
-      desired_linear_vel: 0.4
+      desired_linear_vel: 2.0
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
       lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 0.5
+      rotate_to_heading_angular_vel: 1.5
       transform_tolerance: 0.1
       use_velocity_scaled_lookahead_dist: false
       min_approach_linear_velocity: 0.05
@@ -252,7 +252,7 @@ collision_monitor:
     base_frame_id: "base_link"
     odom_frame_id: "odom"
     cmd_vel_in_topic: "cmd_vel_smoothed"
-    cmd_vel_out_topic: "cmd_vel_nav"
+    cmd_vel_out_topic: "cmd_vel"
     state_topic: "collision_monitor_state"
     transform_tolerance: 0.2
     source_timeout: 1.0
@@ -261,7 +261,7 @@ collision_monitor:
     polygons: ["PolygonStop"]
     PolygonStop:
       type: "circle"
-      radius: 0.3
+      radius: 0.5
       action_type: "stop"
       max_points: 3
       visualize: true

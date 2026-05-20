@@ -59,4 +59,6 @@ ros2 run main_drive_package take_image_node &
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &
 
+#GUI
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 wait

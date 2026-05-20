@@ -50,12 +50,13 @@ MAX_CIRCLE_RETRIES = 3
 
 class FrontierExplorer(Node):
 
-    WAITING   = 'waiting'
-    SWEEP     = 'sweep'
-    VISITING  = 'visiting'
-    RETURN    = 'return'
-    WAYPOINT  = 'waypoint'
-    DONE      = 'done'
+    WAITING    = 'waiting'
+    SWEEP      = 'sweep'
+    POST_SWEEP = 'post_sweep'
+    VISITING   = 'visiting'
+    RETURN     = 'return'
+    WAYPOINT   = 'waypoint'
+    DONE       = 'done'
 
     def __init__(self):
         super().__init__('frontier_explorer',
@@ -185,6 +186,8 @@ class FrontierExplorer(Node):
         if self._state == self.SWEEP:
             self._detect_objects()
             self._tick_sweep()
+        elif self._state == self.POST_SWEEP:
+            self._tick_post_sweep()
         elif self._state == self.VISITING:
             self._tick_visit()
         elif self._state == self.RETURN:
@@ -219,10 +222,17 @@ class FrontierExplorer(Node):
                 f'[SWEEP] WP {self._sweep_idx}/{len(self._sweep_wps)}: ({x}, {y})')
             self._send_goal(x, y)
         else:
-            self.get_logger().info(f'[SWEEP] done — building visit queue from merged costmap')
+            self.get_logger().info('[SWEEP] done — merging costmap, returning to origin')
             self._freeze_global_costmap()
             self._sort_queue_nn()
-            self._state = self.VISITING
+            self._state = self.POST_SWEEP
+            self._last_goal_ok = True
+            self._send_goal(0.0, 0.0)
+
+    def _tick_post_sweep(self):
+        self.get_logger().info('[POST_SWEEP] at origin — starting visit phase')
+        self._last_goal_ok = True
+        self._state = self.VISITING
 
     def _tick_visit(self):
         now = self.get_clock().now().nanoseconds / 1e9

@@ -135,16 +135,12 @@ class FrontierExplorer(Node):
     # ── Sweep generation ──────────────────────────────────────────────────────
 
     def _gen_sweep(self):
-        pts = []
+        wps = []
         for i, x in enumerate(SWEEP_X):
             if i % 2 == 0:
-                pts += [(x, SWEEP_Y_HI), (x, SWEEP_Y_LO)]
+                wps += [(x, SWEEP_Y_HI), (x, SWEEP_Y_LO)]
             else:
-                pts += [(x, SWEEP_Y_LO), (x, SWEEP_Y_HI)]
-        wps = []
-        for i, (x, y) in enumerate(pts):
-            nx, ny = pts[i + 1] if i + 1 < len(pts) else (0.0, 0.0)
-            wps.append((x, y, math.atan2(ny - y, nx - x)))
+                wps += [(x, SWEEP_Y_LO), (x, SWEEP_Y_HI)]
         return wps
 
     # ── Startup ───────────────────────────────────────────────────────────────
@@ -206,9 +202,9 @@ class FrontierExplorer(Node):
                 self.get_logger().info(
                     f'[SWEEP] retry {self._sweep_fails}/{MAX_SWEEP_RETRIES} '
                     f'for WP {self._sweep_idx}')
-                x, y, yaw = self._sweep_wps[self._sweep_idx - 1]
+                x, y = self._sweep_wps[self._sweep_idx - 1]
                 self._last_goal_ok = True
-                self._send_goal(x, y, yaw)
+                self._send_goal(x, y)
                 return
             else:
                 self.get_logger().warn(
@@ -219,12 +215,12 @@ class FrontierExplorer(Node):
         self._last_goal_ok = True
 
         if self._sweep_idx < len(self._sweep_wps):
-            x, y, yaw = self._sweep_wps[self._sweep_idx]
+            x, y = self._sweep_wps[self._sweep_idx]
             self._sweep_idx  += 1
             self._sweep_fails = 0
             self.get_logger().info(
                 f'[SWEEP] WP {self._sweep_idx}/{len(self._sweep_wps)}: ({x}, {y})')
-            self._send_goal(x, y, yaw)
+            self._send_goal(x, y)
         else:
             self.get_logger().info('[SWEEP] done — merging costmap, returning to origin')
             self._freeze_global_costmap()

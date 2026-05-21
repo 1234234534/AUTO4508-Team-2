@@ -13,6 +13,7 @@ from std_msgs.msg import String
 from rcl_interfaces.srv import SetParameters
 from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
+from rosbag2_interfaces.srv import Snapshot
 
 # ── Merge map cleaning ───────────────────────────────────────────────────────
 MORPH_OPEN_K     = 3    # open kernel size (r=1 → 3x3); removes isolated noise
@@ -194,11 +195,19 @@ class FrontierExplorer(Node):
             if self._latest_scan is not None:
                 ranges = [r for r in self._latest_scan.ranges if r > 0.01]
                 if ranges and min(ranges) < ESTOP_DIST:
+
+                    #Rosbags snapshot
+                    if self._estop_snapshot_armed:
+                        self._estop_snapshot_armed = False
+                        self._trigger_snapshot()
+
                     msg = String(); msg.data = 'MANUAL:ON'
                     self._mode_pub.publish(msg)
                     self.get_logger().warn(
                         f'[ESTOP] obstacle at {min(ranges):.2f}m — publishing MANUAL:ON to stop robot')
                     return
+                else:
+                    self._estop_snapshot_armed = True
 
         if self._goal_active:
             now = self.get_clock().now().nanoseconds / 1e9
@@ -733,6 +742,17 @@ class FrontierExplorer(Node):
         s      = String()
         s.data = msg
         self._status_pub.publish(s)
+
+    # -- ROS BAGS SNAPSHOT FOR E-STOP ----------------------
+    def _trigger_snapshot(self):
+        if not self._snapshot_client.wait_for_service(timeout_sec=0.1):
+            self.get_logger().warn('[ESTOP] snapshot service unavailable')
+            return
+
+        req = Snapshot.Request()
+        self._snapshot_client.call_async(req)
+
+        self.get_logger().warn('[ESTOP] snapshot triggered')
 
 
 def main(args=None):

@@ -36,9 +36,7 @@ class OdomNode(Node):
         odom.pose.pose.position.z = 0.0
 
         q = tf_transformations.quaternion_from_euler(0, 0, msg.theta)
-        odom.pose.pose.orientation = Quaternion(
-            x=q[0], y=q[1], z=q[2], w=q[3]
-        )
+        odom.pose.pose.orientation = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
 
         self.pub.publish(odom)
         """
@@ -57,12 +55,7 @@ class OdomNode(Node):
         t.transform.translation.x = msg.x
         t.transform.translation.y = msg.y
         t.transform.translation.z = 0.0
-        t.transform.rotation = Quaternion(
-            x=q[0],
-            y=q[1],
-            z=q[2],
-            w=q[3]
-        )
+        t.transform.rotation = Quaternion(x=q[0],y=q[1],z=q[2],w=q[3])
         self.tf_broadcaster.sendTransform(t)
 
 def main(args=None):

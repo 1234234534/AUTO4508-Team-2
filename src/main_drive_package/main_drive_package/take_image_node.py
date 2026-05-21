@@ -118,7 +118,11 @@ class JoyImageCapture(Node):
         self.get_logger().info("TakeImageNode ready — waiting for /perception/trigger")
 
     def image_callback(self, msg):
-        self.latest_image = msg
+        try:
+            self._latest_image = self._bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self.get_logger().info("Took Image")
+        except Exception as e:
+            self.get_logger().warn(f'cv_bridge error: {e}', throttle_duration_sec=5.0)
 
     def joy_callback(self, msg):
         pass
@@ -138,7 +142,7 @@ class JoyImageCapture(Node):
 
         img = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')
         
-        #Top Black Border to Detect Paper close to top
+        #Top Green Border to Detect Paper close to top
         image = cv2.copyMakeBorder(
             img,
             top=100,

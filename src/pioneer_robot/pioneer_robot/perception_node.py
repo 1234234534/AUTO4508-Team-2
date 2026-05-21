@@ -3,7 +3,7 @@ import json
 import math
 from datetime import datetime
 
-import cv2z
+import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node

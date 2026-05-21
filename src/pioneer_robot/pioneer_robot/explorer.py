@@ -193,10 +193,10 @@ class FrontierExplorer(Node):
             if self._latest_scan is not None:
                 ranges = [r for r in self._latest_scan.ranges if r > 0.01]
                 if ranges and min(ranges) < ESTOP_DIST:
-                    msg = String(); msg.data = 'MANUAL:OFF'
+                    msg = String(); msg.data = 'MANUAL:ON'
                     self._mode_pub.publish(msg)
                     self.get_logger().warn(
-                        f'[ESTOP] obstacle at {min(ranges):.2f}m — switching to MANUAL:OFF')
+                        f'[ESTOP] obstacle at {min(ranges):.2f}m — publishing MANUAL:ON to stop robot')
                     return
 
         if self._goal_active:

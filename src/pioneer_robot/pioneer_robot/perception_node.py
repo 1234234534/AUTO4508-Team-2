@@ -158,7 +158,8 @@ class PerceptionNode(Node):
         except Exception:
             return
 
-        self.greek_letter(self._latest_frame)
+        if self.greek_letter(self._latest_frame, ox, oy):
+            return
 
         frame  = self._latest_frame.copy()
         h, w   = frame.shape[:2]
@@ -254,7 +255,7 @@ class PerceptionNode(Node):
         with open(self._log_path, 'w') as f:
             json.dump(log, f, indent=2)
 
-    def greek_letter(self, image):
+    def greek_letter(self, image, ox, oy):
         
         #Top Green Border to Detect Paper close to top
         image = cv2.copyMakeBorder(
@@ -340,12 +341,21 @@ class PerceptionNode(Node):
 
         self.get_logger().info(f'[LETTER] Predicted: {pred_label}  Confidence: {confidence:.2f}')
 
-        ox, oy = self._current_pos
-        entry = {'label': f'letter_{pred_label}', 'x': round(ox, 2), 'y': round(oy, 2),
-                 'confidence': round(confidence, 3), 'image': fpath}
+        label = f'letter_{pred_label}'
+        if self._is_duplicate(label, ox, oy):
+            self.get_logger().info(f'[LETTER] dedup — {label} already logged near ({ox:.1f},{oy:.1f})')
+            return
+
+        entry = {'label': label, 'x': round(ox, 2), 'y': round(oy, 2),
+                 'confidence': round(confidence, 3), 'image': fpath, 'timestamp': datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:19]}
+        self._session.append(entry)
+        self._append_log(entry)
+
         out = String()
         out.data = json.dumps(entry)
         self._det_pub.publish(out)
+        self.get_logger().info(f'[LETTER] LOGGED: {label} at ({ox:.1f},{oy:.1f})')
+        return True
 
 
 def main(args=None):

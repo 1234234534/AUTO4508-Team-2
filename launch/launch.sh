@@ -54,7 +54,7 @@ sleep 5
 
 ros2 run pioneer_robot explorer &
 ros2 run pioneer_robot perception &
-ros2 run main_drive_package take_image_node &
+#ros2 run main_drive_package take_image_node &
 
 # Record Journey
 ros2 bag record /gps/fix /imu/mag /cmd_vel_pointandshoot /cmd_vel -o journey_$(date +%Y%m%d_%H%M%S) &

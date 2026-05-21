@@ -15,13 +15,19 @@ from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
 
 # ── Merge map cleaning ───────────────────────────────────────────────────────
-MORPH_KERNEL_SIZE = 3   # px — opening kernel; larger removes bigger specs
-MORPH_ITERATIONS  = 1   # passes of erode+dilate; more = more aggressive
+MORPH_OPEN_K     = 3    # open kernel size (r=1 → 3x3); removes isolated noise
+MORPH_OPEN_ITER  = 1
+MORPH_DIL_K      = 5    # dilate kernel size (r=2 → 5x5); expands/merges cylinders
+MORPH_DIL_ITER   = 3
+MORPH_CLOSE_K    = 5    # close kernel size (r=2 → 5x5); fills holes in merged blobs
+MORPH_CLOSE_ITER = 8
+MORPH_CLEAN_K    = 3    # final open kernel size (r=1 → 3x3); smooths edges
+MORPH_CLEAN_ITER = 7
 
 # ── Arena / sweep config ──────────────────────────────────────────────────────
 ARENA_HALF       = 7.5
 WALL_MARGIN      = 1.2
-SWEEP_X          = [6.0, 0.0, -6.0]
+SWEEP_X          = [6.0, 0.0, -3.0]
 SWEEP_Y_LO       = -(ARENA_HALF - WALL_MARGIN)
 SWEEP_Y_HI       =  (ARENA_HALF - WALL_MARGIN)
 
@@ -35,6 +41,7 @@ RETURN_WAIT      = 10.0   # seconds to wait at origin before waypoint run
 # ── Object detection ──────────────────────────────────────────────────────────
 MIN_CLUSTER_PTS   = 5
 MIN_CLUSTER_SPAN  = 0.25   # m — min bounding-box span; filters trees (~10cm) and cones (~12cm)
+MAX_CLUSTER_SPAN  = 1.2    # m — max bounding-box span; rejects wall blobs and large noise
 CLUSTER_RADIUS    = 0.6
 MERGE_DIST        = 2.0
 
@@ -394,6 +401,9 @@ class FrontierExplorer(Node):
             Parameter(name='static_layer.enabled',
                       value=ParameterValue(type=ParameterType.PARAMETER_BOOL,
                                            bool_value=True)),
+            Parameter(name='inflation_layer.inflation_radius',
+                      value=ParameterValue(type=ParameterType.PARAMETER_DOUBLE,
+                                           double_value=0.375)),
         ]
         self._costmap_params.call_async(req)
         self._costmap_frozen = True
@@ -409,9 +419,8 @@ class FrontierExplorer(Node):
         info = costmap.info
         w, h = info.width, info.height
 
-        # Start from costmap lethal cells only (discard cost gradients)
-        cm = np.array(costmap.data, dtype=np.int8).reshape((h, w))
-        merged = np.where(cm == 100, np.int8(100), np.int8(0))
+        # Start from a blank grid — SLAM map drives everything, costmap ignored
+        merged = np.zeros((h, w), dtype=np.int8)
 
         import cv2 as _cv2
         import os as _os
@@ -428,8 +437,11 @@ class FrontierExplorer(Node):
             _cv2.imwrite(_os.path.join(save_dir, 'map_1_slam_raw.png'), slam_img)
 
             # Filter SLAM map before merge
-            kernel      = np.ones((MORPH_KERNEL_SIZE, MORPH_KERNEL_SIZE), np.uint8)
-            slam_clean  = _cv2.morphologyEx(slam_img, _cv2.MORPH_OPEN, kernel, iterations=MORPH_ITERATIONS)
+            def _ellipse(k): return _cv2.getStructuringElement(_cv2.MORPH_ELLIPSE, (k, k))
+            slam_clean = _cv2.morphologyEx(slam_img, _cv2.MORPH_OPEN,   _ellipse(MORPH_OPEN_K),   iterations=MORPH_OPEN_ITER)
+            slam_clean = _cv2.dilate      (slam_clean,                   _ellipse(MORPH_DIL_K),    iterations=MORPH_DIL_ITER)
+            slam_clean = _cv2.morphologyEx(slam_clean, _cv2.MORPH_CLOSE, _ellipse(MORPH_CLOSE_K),  iterations=MORPH_CLOSE_ITER)
+            slam_clean = _cv2.morphologyEx(slam_clean, _cv2.MORPH_OPEN,  _ellipse(MORPH_CLEAN_K),  iterations=MORPH_CLEAN_ITER)
             _cv2.imwrite(_os.path.join(save_dir, 'map_2_slam_filtered.png'), slam_clean)
 
             ratio  = si.resolution / info.resolution
@@ -477,6 +489,9 @@ class FrontierExplorer(Node):
             if area < 200 or area > 600:
                 continue
             if aspect > 5.0:
+                continue
+            span_m = max(bw, bh) * info.resolution
+            if span_m < MIN_CLUSTER_SPAN or span_m > MAX_CLUSTER_SPAN:
                 continue
 
             cx_cell = centroids[i][0]

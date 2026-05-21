@@ -189,15 +189,6 @@ class FrontierExplorer(Node):
         if not self._ready:
             return
 
-        if self._goal_active:
-            now = self.get_clock().now().nanoseconds / 1e9
-            if now - self._goal_sent_t > GOAL_TIMEOUT:
-                self.get_logger().warn('Goal timed out — forcing advance')
-                self._goal_active  = False
-                self._last_goal_ok = False
-            else:
-                return
-
         if self._state in (self.VISITING, self.RETURN, self.WAYPOINT):
             if self._latest_scan is not None:
                 ranges = [r for r in self._latest_scan.ranges if r > 0.01]
@@ -207,6 +198,15 @@ class FrontierExplorer(Node):
                     self.get_logger().warn(
                         f'[ESTOP] obstacle at {min(ranges):.2f}m — switching to MANUAL:OFF')
                     return
+
+        if self._goal_active:
+            now = self.get_clock().now().nanoseconds / 1e9
+            if now - self._goal_sent_t > GOAL_TIMEOUT:
+                self.get_logger().warn('Goal timed out — forcing advance')
+                self._goal_active  = False
+                self._last_goal_ok = False
+            else:
+                return
 
         if self._state == self.SWEEP:
             self._detect_objects()

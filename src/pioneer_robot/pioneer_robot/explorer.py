@@ -81,6 +81,7 @@ class FrontierExplorer(Node):
         self._status_pub   = self.create_publisher(String, '/explore/status', 10)
         self._trigger_pub  = self.create_publisher(String, '/perception/trigger', 10)
         self._mode_pub     = self.create_publisher(String, '/mode', 10)
+        self._visit_pub    = self.create_publisher(String, '/visit_queue', 10)
         self._costmap_params = self.create_client(
             SetParameters, '/global_costmap/global_costmap/set_parameters')
         self._costmap_frozen = False
@@ -486,7 +487,62 @@ class FrontierExplorer(Node):
         out.data            = merged.flatten().tolist()
         self._merged_pub.publish(out)
         self.get_logger().info(f'[MERGE] published /merged_costmap ({w}x{h})')
-        self._extract_objects_from_costmap(merged, info)
+
+        # Detect on native SLAM resolution for accurate blob sizes
+        if slam is not None:
+            self._extract_objects_from_slam(slam_clean, slam.info)
+        else:
+            self._extract_objects_from_costmap(merged, info)
+
+    def _extract_objects_from_slam(self, slam_clean, si):
+        import cv2 as _cv2
+        import json as _json
+        res = si.resolution
+        ox  = si.origin.position.x
+        oy  = si.origin.position.y
+        sh  = slam_clean.shape[0]
+
+        n, _, stats, centroids = _cv2.connectedComponentsWithStats(slam_clean, connectivity=8)
+
+        objects = []
+        for i in range(1, n):
+            area   = int(stats[i, _cv2.CC_STAT_AREA])
+            bw     = int(stats[i, _cv2.CC_STAT_WIDTH])
+            bh     = int(stats[i, _cv2.CC_STAT_HEIGHT])
+            aspect = max(bw, bh) / max(min(bw, bh), 1)
+            span_m = max(bw, bh) * res
+
+            if area < 200 or area > 600:
+                continue
+            if aspect > 5.0:
+                continue
+            if span_m < MIN_CLUSTER_SPAN or span_m > MAX_CLUSTER_SPAN:
+                continue
+
+            cx, cy = centroids[i]
+            wx = ox + cx * res
+            wy = oy + cy * res
+
+            if abs(wx) > ARENA_HALF - WALL_MARGIN or abs(wy) > ARENA_HALF - WALL_MARGIN:
+                continue
+
+            objects.append((wx, wy))
+
+        if not objects:
+            self.get_logger().warn(
+                f'[MERGE] no objects found in SLAM map — '
+                f'falling back to {len(self._visit_queue)} LiDAR detections')
+            return
+
+        self._visit_queue = objects
+        self._visited     = []
+        self.get_logger().info(
+            f'[MERGE] visit queue — {len(objects)} objects: '
+            f'{[(round(x,1), round(y,1)) for x, y in objects]}')
+
+        vq_msg = String()
+        vq_msg.data = _json.dumps([{'x': round(x, 2), 'y': round(y, 2)} for x, y in objects])
+        self._visit_pub.publish(vq_msg)
 
     def _extract_objects_from_costmap(self, merged, info):
         import cv2 as _cv2
@@ -529,6 +585,11 @@ class FrontierExplorer(Node):
         self.get_logger().info(
             f'[MERGE] visit queue replaced with {len(objects)} costmap centroids: '
             f'{[(round(x,1), round(y,1)) for x, y in objects]}')
+
+        import json as _json
+        vq_msg = String()
+        vq_msg.data = _json.dumps([{'x': round(x, 2), 'y': round(y, 2)} for x, y in objects])
+        self._visit_pub.publish(vq_msg)
 
     # ── Scan-based object detection ───────────────────────────────────────────
 

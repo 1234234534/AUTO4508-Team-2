@@ -54,6 +54,9 @@ CIRCLE_DWELL     = 2.0   # seconds to stop and scan at each circle waypoint
 MAX_SWEEP_RETRIES  = 50
 MAX_CIRCLE_RETRIES = 3
 
+# ── E-stop ───────────────────────────────────────────────────────────────────
+ESTOP_DIST = 0.5   # m — minimum clear distance during post-freeze phases
+
 
 class FrontierExplorer(Node):
 
@@ -77,6 +80,7 @@ class FrontierExplorer(Node):
 
         self._status_pub   = self.create_publisher(String, '/explore/status', 10)
         self._trigger_pub  = self.create_publisher(String, '/perception/trigger', 10)
+        self._mode_pub     = self.create_publisher(String, '/mode', 10)
         self._costmap_params = self.create_client(
             SetParameters, '/global_costmap/global_costmap/set_parameters')
         self._costmap_frozen = False
@@ -193,6 +197,16 @@ class FrontierExplorer(Node):
                 self._last_goal_ok = False
             else:
                 return
+
+        if self._state in (self.VISITING, self.RETURN, self.WAYPOINT):
+            if self._latest_scan is not None:
+                ranges = [r for r in self._latest_scan.ranges if r > 0.01]
+                if ranges and min(ranges) < ESTOP_DIST:
+                    msg = String(); msg.data = 'MANUAL:OFF'
+                    self._mode_pub.publish(msg)
+                    self.get_logger().warn(
+                        f'[ESTOP] obstacle at {min(ranges):.2f}m — switching to MANUAL:OFF')
+                    return
 
         if self._state == self.SWEEP:
             self._detect_objects()

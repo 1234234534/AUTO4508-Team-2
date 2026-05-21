@@ -196,8 +196,8 @@ smoother_server:
 #error solving, if hangs these things occur
 behavior_server:
   ros__parameters:
-    costmap_topic: global_costmap/costmap_raw
-    footprint_topic: global_costmap/published_footprint
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
     spin:

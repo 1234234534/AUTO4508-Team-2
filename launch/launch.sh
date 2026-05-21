@@ -31,7 +31,7 @@ ros2 run tf2_ros static_transform_publisher 0.2 0 0 0 0 0 base_link oak-d-base-f
 ros2 run tf2_ros static_transform_publisher 0.2 0 0.104 0 0 0 base_link laser &
 
 # Our Nodes
-#ros2 run mode_publisher_package mode_publisher_node &
+ros2 run mode_publisher_package mode_publisher_node &
 ros2 run main_drive_package main_drive_node &
 ros2 run main_drive_package odom_node &
 

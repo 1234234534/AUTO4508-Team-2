@@ -50,7 +50,7 @@ class MainDriveNode(Node):
             # Activate Teleop_twist_joy
             twist = self.teleop_cmd
 
-        elif self.mode == "AUTO" and self.allow == "ON":
+        elif self.mode == "AUTO": # and self.allow == "ON":
             # Set to 0.2 forward in x direction
             #twist.linear.x = 0.2
             #twist.angular.z = 0.0

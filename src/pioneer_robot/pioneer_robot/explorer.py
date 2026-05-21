@@ -13,7 +13,7 @@ from std_msgs.msg import String
 from rcl_interfaces.srv import SetParameters
 from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
-from rosbag2_interfaces.srv import Snapshot
+#from rosbag2_interfaces.srv import Snapshot
 
 # ── Merge map cleaning ───────────────────────────────────────────────────────
 MORPH_OPEN_K     = 3    # open kernel size (r=1 → 3x3); removes isolated noise
@@ -221,8 +221,8 @@ class FrontierExplorer(Node):
                     self._mode_pub.publish(msg)
                     self.get_logger().warn(
                         f'[ESTOP] obstacle at {min(ranges):.2f}m — publishing MANUAL:ON to stop robot')
-                    return
-                else:
+                    #return
+                #else:
                     #self._estop_snapshot_armed = True
 
         if self._goal_active:

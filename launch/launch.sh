@@ -60,7 +60,7 @@ ros2 run pioneer_robot perception &
 ros2 bag record /cmd_vel /scan /odom /detections -o /rosbags/journey_$(date +%Y%m%d_%H%M%S) &
 
 # E-Stop Snapshots
-ros2 bag record --snapshot-mode --max-cache-size 50000000 /cmd_vel /scan /odom /detections -o /rosbags/estop_$(date +%Y%m%d_%H%M%S) &
+#ros2 bag record --snapshot-mode --max-cache-size 50000000 /cmd_vel /scan /odom /detections -o /rosbags/estop_$(date +%Y%m%d_%H%M%S) &
 
 #GUI
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml

@@ -11,7 +11,7 @@ class ModePublisherNode(Node):
         self.subscription = self.create_subscription(Joy, '/joy', self.joy_callback, 10)
         self.publisher = self.create_publisher(String, '/mode', 10)
 
-        self.mode = "MANUAL"
+        #self.mode = "MANUAL"
         self.allowAuto = "OFF"
 
     def joy_callback(self, msg):
@@ -19,12 +19,12 @@ class ModePublisherNode(Node):
         x_button = msg.buttons[0]
         o_button = msg.buttons[1]
         trigger = msg.axes[5]
-
+        a = "HELLO"
         # Set Mode
         if x_button:
-            self.mode = "AUTO"
+            a = "AUTO"
         if o_button:
-            self.mode = "MANUAL"
+            a = "MANUAL"
         if trigger < 0.99:
             self.allowAuto = "ON"
         else:
@@ -35,7 +35,7 @@ class ModePublisherNode(Node):
 
         # Publish Mode
         msg_out = String()
-        msg_out.data = f"{self.mode}:{self.allowAuto}"
+        msg_out.data = f"{a}:{self.allowAuto}"
         self.publisher.publish(msg_out)
 
 def main(args=None):

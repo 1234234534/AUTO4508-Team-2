@@ -17,6 +17,7 @@ docker run -d --name JASON \
     -v /dev:/dev \
     -v /sys:/sys \
     -v /run/udev:/run/udev \
+    -v /home/team2/rosbags:/rosbags \
     team2-dockerimage tail -f /dev/null \
     
 docker cp . JASON:/workspace \

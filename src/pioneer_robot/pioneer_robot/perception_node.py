@@ -11,6 +11,9 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge
 
+import joblib
+from skimage.feature import hog
+
 # ── HSV colour ranges (H 0-179, S 0-255, V 0-255) ────────────────────────────
 RED_LO1 = np.array([  0, 120,  40], dtype=np.uint8)
 RED_HI1 = np.array([ 10, 255, 255], dtype=np.uint8)

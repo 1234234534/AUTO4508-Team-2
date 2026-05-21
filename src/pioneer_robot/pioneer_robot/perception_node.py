@@ -29,6 +29,93 @@ ROI_BOT     = 0.20   # crop bottom fraction (ground)
 
 SAVE_DIR = os.path.expanduser('~/detections')
 
+# Classifying Parameters
+IMG_SIZE = (64, 64)
+
+SAVE_DIR = os.path.expanduser('~/detections')
+os.makedirs(SAVE_DIR, exist_ok=True)
+
+bundle = joblib.load("hog_svm_greek_letters.pkl")
+model = bundle["model"]
+le = bundle["label_encoder"]
+
+#////////////////////////////////////////////////////////////////////////////////////
+#                     IMAGE PROCESSING
+#////////////////////////////////////////////////////////////////////////////////////
+        
+def order_points(pts):
+    # Rearrange points: top-left, top-right, bottom-right, bottom-left
+    rect = np.zeros((4, 2), dtype="float32")
+
+    s = pts.sum(axis=1)
+    rect[0] = pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+
+    diff = np.diff(pts, axis=1)
+    rect[1] = pts[np.argmin(diff)]
+    rect[3] = pts[np.argmax(diff)]
+
+    return rect
+
+def four_point_transform(image, pts):
+    rect = order_points(pts)
+    (tl, tr, br, bl) = rect
+
+    widthA = np.linalg.norm(br - bl)
+    widthB = np.linalg.norm(tr - tl)
+    maxWidth = int(max(widthA, widthB))
+
+    heightA = np.linalg.norm(tr - br)
+    heightB = np.linalg.norm(tl - bl)
+    maxHeight = int(max(heightA, heightB))
+
+    dst = np.array([
+        [0, 0],
+        [maxWidth - 1, 0],
+        [maxWidth - 1, maxHeight - 1],
+        [0, maxHeight - 1]
+    ], dtype="float32")
+
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+
+    return warped
+
+def imagePreprocess(image):
+    
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(gray, 50, 150)
+    kernel = np.ones((5,5), np.uint8)
+    edges = cv2.dilate(edges, kernel, iterations=1)
+    edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    edges = cv2.dilate(edges, kernel, iterations=1)
+    edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    #edges = cv2.dilate(edges, kernel, iterations=1)
+    #edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    return edges
+
+#////////////////////////////////////////////////////////////////////////////////////
+#                     HOG AND SVM
+#////////////////////////////////////////////////////////////////////////////////////
+
+def preprocess_image_array(img):
+    img = cv2.resize(img, IMG_SIZE)
+    img = cv2.equalizeHist(img)
+    return img
+
+def extract_hog(img):
+    return hog(
+        img,
+        orientations=9,
+        pixels_per_cell=(8, 8),
+        cells_per_block=(2, 2),
+        block_norm='L2-Hys',
+        transform_sqrt=True,
+        feature_vector=True
+    )
+
+
 
 class PerceptionNode(Node):
 
@@ -243,8 +330,8 @@ class PerceptionNode(Node):
 
         # PREDICT
         image = cv2.imread(fpath, cv2.IMREAD_GRAYSCALE)
-        image = preprocess_image_array(img)
-        feat = extract_hog(img).reshape(1, -1)
+        image = preprocess_image_array(image)
+        feat = extract_hog(image).reshape(1, -1)
 
         pred_idx = model.predict(feat)[0]
         pred_label = le.inverse_transform([pred_idx])[0]

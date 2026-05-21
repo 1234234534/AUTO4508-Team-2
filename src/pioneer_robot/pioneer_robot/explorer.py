@@ -22,6 +22,8 @@ from datetime import datetime
 import copy
 import pickle
 import threading
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
 
 # ── Merge map cleaning ───────────────────────────────────────────────────────
 MORPH_OPEN_K     = 3    # open kernel size (r=1 → 3x3); removes isolated noise
@@ -166,8 +168,23 @@ class FrontierExplorer(Node):
         self._topic_buffers = {
             "scan": deque(),
             "odom": deque(),
-            "cmd_vel" deque(),
+            "cmd_vel": deque(),
+            "detections": deque(),
         }
+
+        self.create_subscription(
+            Odometry,
+            '/odom',
+            self._odom_cb,
+            10
+        )
+
+        self.create_subscription(
+            Twist,
+            '/cmd_vel',
+            self._cmd_vel_cb,
+            10
+        )
 
     # ── Sweep generation ──────────────────────────────────────────────────────
 
@@ -249,6 +266,8 @@ class FrontierExplorer(Node):
                     if not self._estop_dumped:
                         self._estop_dumped = True
                         self._dump_estop_log()
+                else:
+                    self._estop_dumped = False
                     #return
                 #else:
                     #self._estop_snapshot_armed = True
@@ -797,7 +816,7 @@ class FrontierExplorer(Node):
                 self._topic_buffers[topic].popleft()
 
     def _dump_estop_log(self):
-        outdir = Path.home() / "estop_logs"
+        outdir = Path("/rosbags/estops/")
         outdir.mkdir(parents=True, exist_ok=True)
 
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -814,6 +833,12 @@ class FrontierExplorer(Node):
     def _scan_cb(self, msg: LaserScan):
         self._latest_scan = msg
         self._buffer_msg("scan", msg)
+
+    def _odom_cb(self, msg: Odometry):
+        self._buffer_msg("odom", msg)
+
+    def _cmd_vel_cb(self, msg: Twist):
+        self._buffer_msg("cmd_vel", msg)
 
 def main(args=None):
     rclpy.init(args=args)

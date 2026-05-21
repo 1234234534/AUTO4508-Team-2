@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y \
     python3-skimage \
     python3-joblib \
     ros-jazzy-rosbridge-suite \
+    ros-jazzy-rosbag2 \
     && rm -rf /var/lib/apt/lists/*
     
 

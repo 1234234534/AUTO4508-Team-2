@@ -141,6 +141,9 @@ class FrontierExplorer(Node):
         self._return_arrived_t = 0.0
         self._waypoint_queue   = []
 
+        self._estop_snapshot_armed = False
+        self._snapshot_client = self.create_client(Snapshot, '/rosbag2_recorder/snapshot')
+
         self.create_timer(STARTUP_DELAY, self._on_ready)
         self.create_timer(1.0 / TICK_HZ, self._tick)
 

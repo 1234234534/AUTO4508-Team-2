@@ -171,7 +171,7 @@ class PerceptionNode(Node):
         
         #Top Green Border to Detect Paper close to top
         image = cv2.copyMakeBorder(
-            img,
+            image,
             top=100,
             bottom=0,
             left=0,
@@ -242,8 +242,8 @@ class PerceptionNode(Node):
         cv2.imwrite(fpath, warped)
 
         # PREDICT
-        img = cv2.imread(fpath, cv2.IMREAD_GRAYSCALE)
-        img = preprocess_image_array(img)
+        image = cv2.imread(fpath, cv2.IMREAD_GRAYSCALE)
+        image = preprocess_image_array(img)
         feat = extract_hog(img).reshape(1, -1)
 
         pred_idx = model.predict(feat)[0]

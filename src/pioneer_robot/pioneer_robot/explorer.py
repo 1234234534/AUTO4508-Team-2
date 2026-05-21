@@ -105,6 +105,7 @@ class FrontierExplorer(Node):
         self.create_subscription(LaserScan, '/scan',
                                  lambda m: setattr(self, '_latest_scan', m), 10)
         self.create_subscription(String, '/detections', self._detection_cb, 10)
+        self.create_subscription(String, '/waypoint_run', self._waypoint_run_cb, 10)
 
         # State
         self._state        = self.WAITING
@@ -184,6 +185,17 @@ class FrontierExplorer(Node):
                 f'{len(self._marker_wps)} total')
         except Exception:
             pass
+
+    def _waypoint_run_cb(self, msg: String):
+        try:
+            points = json.loads(msg.data)
+            self._waypoint_queue = [(p['x'], p['y']) for p in points]
+            self._last_goal_ok = True
+            self._state = self.WAYPOINT
+            self.get_logger().info(
+                f'[WAYPOINT] received {len(self._waypoint_queue)} waypoints from GUI')
+        except Exception as e:
+            self.get_logger().warn(f'[WAYPOINT] bad /waypoint_run message: {e}')
 
     # ── Main tick ─────────────────────────────────────────────────────────────
 
@@ -344,25 +356,11 @@ class FrontierExplorer(Node):
             self._send_goal(0.0, 0.0)
 
     def _tick_return(self):
-        now = self.get_clock().now().nanoseconds / 1e9
-
         if self._return_arrived_t == 0.0:
-            self._return_arrived_t = now
-            self.get_logger().info(
-                f'[RETURN] at origin — waiting {RETURN_WAIT:.0f}s before waypoint run')
+            self._return_arrived_t = self.get_clock().now().nanoseconds / 1e9
+            self.get_logger().info('[RETURN] at origin — waiting for waypoints from GUI')
             self._pub_status('AT_ORIGIN')
-            return
-
-        if now - self._return_arrived_t < RETURN_WAIT:
-            return
-
-        n = len(self._marker_wps)
-        self.get_logger().info(
-            f'[WAYPOINT] starting fast run to {n} markers')
-        self._waypoint_queue = [(x, y) for _, x, y in self._marker_wps]
-        self._sort_wps_nn(0.0, 0.0)
-        self._last_goal_ok = True
-        self._state = self.WAYPOINT
+        # Stays here until /waypoint_run is received from GUI
 
     def _tick_waypoint(self):
         if not self._last_goal_ok:
@@ -509,7 +507,6 @@ class FrontierExplorer(Node):
         res = si.resolution
         ox  = si.origin.position.x
         oy  = si.origin.position.y
-        sh  = slam_clean.shape[0]
 
         n, _, stats, centroids = _cv2.connectedComponentsWithStats(slam_clean, connectivity=8)
 

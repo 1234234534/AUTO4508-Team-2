@@ -95,6 +95,69 @@ def imagePreprocess(image):
     #edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
     return edges
 
+def Process2ndRound(image):
+
+    orig = image.copy()
+    
+    edges = imagePreprocess(image)
+
+    # ---- Find contours ----
+    """Find Connected Shapes
+    Only External (doesn't do inside shapes) cv2.RETR_EXTERNAL or cv2.RETR_LIST returns all
+    cv2.CHAIN_APPROX_SIMPLE returns a list of key points rather than every pixel on the outline"""
+    contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Sort largest to smallest, A4 paper should be the largest
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+    # Eventually stores the contour of the paper
+    doc_contour = None
+
+    # Check every found contour
+    # Check every found contour
+    for i, c in enumerate(contours):
+
+        # Find perimeter
+        peri = cv2.arcLength(c, True)
+
+        # Simplify contour
+        approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+        
+        if cv2.contourArea(c) < 14000:
+            break
+        if cv2.contourArea(c) > 130000:
+            continue
+        
+        area = cv2.contourArea(c)
+        
+        rect = cv2.minAreaRect(c)
+        
+        # Get 4 rectangle corners
+        box = cv2.boxPoints(rect)
+        # Convert to integer coords
+        box = np.int32(box)
+        
+        w, h = rect[1]
+        if w == 0 or h == 0:
+            continue
+        box_area = w * h
+        rectangularity = area / box_area
+        
+        aspect = h / w
+        
+        if rectangularity > 0.7: #and aspect > 1.2:
+            doc_contour = box
+            break
+        
+    if doc_contour is None:
+        #raise Exception("Could not find A4 sheet")
+        #print("No A4 Found")
+        return image
+
+    # ---- Transform ----
+    warped = four_point_transform(orig, doc_contour.reshape(4, 2))
+    return warped
+
 #////////////////////////////////////////////////////////////////////////////////////
 #                     HOG AND SVM
 #////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +221,7 @@ class PerceptionNode(Node):
         except Exception:
             return
 
-        if self.greek_letter(self._latest_frame, ox, oy):
+        if self.greek_letter(self._latest_frame, ox, oy) >= 0.7:
             return
 
         frame  = self._latest_frame.copy()
@@ -319,10 +382,13 @@ class PerceptionNode(Node):
             self.get_logger().info("No A4 Found")
             #output_dir2 = os.path.join("notable", filename)
             #cv2.imwrite(output_dir2, orig)
-            return
+            return 0
 
         # ---- Transform ----
         warped = four_point_transform(orig, doc_contour.reshape(4, 2))
+
+        # 2nd Round Processing
+        warped = Process2ndRound(warped)
         
         # ---- Save ----
         filename = f"letter_{self.get_clock().now().to_msg().sec}.png"
@@ -344,7 +410,7 @@ class PerceptionNode(Node):
         label = f'letter_{pred_label}'
         if self._is_duplicate(label, ox, oy):
             self.get_logger().info(f'[LETTER] dedup — {label} already logged near ({ox:.1f},{oy:.1f})')
-            return
+            return 0
 
         entry = {'label': label, 'x': round(ox, 2), 'y': round(oy, 2),
                  'confidence': round(confidence, 3), 'image': fpath, 'timestamp': datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:19]}
@@ -355,7 +421,7 @@ class PerceptionNode(Node):
         out.data = json.dumps(entry)
         self._det_pub.publish(out)
         self.get_logger().info(f'[LETTER] LOGGED: {label} at ({ox:.1f},{oy:.1f})')
-        return True
+        return confidence
 
 
 def main(args=None):

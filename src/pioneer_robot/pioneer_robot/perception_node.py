@@ -19,8 +19,8 @@ RED_LO1 = np.array([  0, 120,  40], dtype=np.uint8)
 RED_HI1 = np.array([ 10, 255, 255], dtype=np.uint8)
 RED_LO2 = np.array([170, 120,  40], dtype=np.uint8)
 RED_HI2 = np.array([179, 255, 255], dtype=np.uint8)
-YEL_LO  = np.array([ 20, 100,  80], dtype=np.uint8)
-YEL_HI  = np.array([ 35, 255, 255], dtype=np.uint8)
+YEL_LO  = np.array([ 18, 80,  80], dtype=np.uint8)
+YEL_HI  = np.array([ 30, 255, 255], dtype=np.uint8)
 
 MIN_PIXELS  = 800    # minimum coloured pixels to count as a detection
 DEDUP_DIST  = 3.0    # m — suppress duplicate detections within this radius

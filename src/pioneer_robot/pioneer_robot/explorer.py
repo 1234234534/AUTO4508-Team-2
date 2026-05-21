@@ -15,6 +15,14 @@ from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 import tf2_ros
 #from rosbag2_interfaces.srv import Snapshot
 
+#Recording 5 secs before e-stop
+from collections import deque
+from pathlib import Path
+from datetime import datetime
+import copy
+import pickle
+import threading
+
 # ── Merge map cleaning ───────────────────────────────────────────────────────
 MORPH_OPEN_K     = 3    # open kernel size (r=1 → 3x3); removes isolated noise
 MORPH_OPEN_ITER  = 1
@@ -103,7 +111,7 @@ class FrontierExplorer(Node):
                                  _transient)
 
         self.create_subscription(LaserScan, '/scan',
-                                 lambda m: setattr(self, '_latest_scan', m), 10)
+                                 self._scan_cb, 10)
         self.create_subscription(String, '/detections', self._detection_cb, 10)
         self.create_subscription(String, '/waypoint_run', self._waypoint_run_cb, 10)
 
@@ -150,6 +158,17 @@ class FrontierExplorer(Node):
 
         self.get_logger().info('FrontierExplorer ready — waiting for Nav2/SLAM ...')
 
+        # recording 5 secs before e-stop
+        self._log_window_s = 5.0
+        self._buf_lock = threading.Lock()
+        self._estop_dumped = False
+
+        self._topic_buffers = {
+            "scan": deque(),
+            "odom": deque(),
+            "cmd_vel" deque(),
+        }
+
     # ── Sweep generation ──────────────────────────────────────────────────────
 
     def _gen_sweep(self):
@@ -177,6 +196,9 @@ class FrontierExplorer(Node):
 
     def _detection_cb(self, msg: String):
         try:
+            # Recording last 5 secs
+            self._buffer_msg("detections", msg)
+
             data  = json.loads(msg.data)
             label = data['label']
             x, y  = data['x'], data['y']
@@ -222,6 +244,11 @@ class FrontierExplorer(Node):
                     self._mode_pub.publish(msg)
                     self.get_logger().warn(
                         f'[ESTOP] obstacle at {min(ranges):.2f}m — publishing MANUAL:ON to stop robot')
+
+                    # Record last 5 secs
+                    if not self._estop_dumped:
+                        self._estop_dumped = True
+                        self._dump_estop_log()
                     #return
                 #else:
                     #self._estop_snapshot_armed = True
@@ -757,6 +784,36 @@ class FrontierExplorer(Node):
 
         self.get_logger().warn('[ESTOP] snapshot triggered')
         """
+
+    # Record last 5 secs before e-stop
+    def _buffer_msg(self, topic: str, msg):
+        now = self.get_clock().now().nanoseconds / 1e9
+        cutoff = now - self._log_window_s
+
+        with self._buf_lock:
+            self._topic_buffers[topic].append((now, copy.deepcopy(msg)))
+
+            while self._topic_buffers[topic] and self._topic_buffers[topic][0][0] < cutoff:
+                self._topic_buffers[topic].popleft()
+
+    def _dump_estop_log(self):
+        outdir = Path.home() / "estop_logs"
+        outdir.mkdir(parents=True, exist_ok=True)
+
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = outdir / f"estop_{stamp}.pkl"
+
+        with self._buf_lock:
+            payload = {k: list(v) for k, v in self._topic_buffers.items()}
+
+        with path.open("wb") as f:
+            pickle.dump(payload, f)
+
+        self.get_logger().warn(f"[ESTOP] saved last 5s of topic data to {path}")
+
+    def _scan_cb(self, msg: LaserScan):
+        self._latest_scan = msg
+        self._buffer_msg("scan", msg)
 
 def main(args=None):
     rclpy.init(args=args)
